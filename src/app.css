@@ -1,0 +1,89 @@
+@import 'modern-normalize';
+
+:root {
+  --color-bg: white;
+  --color-text: #333;
+  --color-borders: #888888;
+  --color-link: #0645ad;
+}
+
+body {
+  font-family: sans-serif;
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  margin: 0 1rem;
+}
+
+h1 {
+  font-family: "Linux Libertine", Georgia, Times, "Source Serif Pro", serif;
+  font-size: 2.25rem; /* 36px */
+  font-weight: normal;
+  line-height: 1.2;
+  margin-bottom: 0;
+}
+
+h2 {
+  font-family: "Linux Libertine", Georgia, Times, "Source Serif Pro", serif;
+  font-size: 1.875rem; /* 30px */
+  font-weight: normal;
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+h3 {
+  font-size: 1.5rem; /* 24px */
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
+h4 {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
+h5, h6 {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.no-underline {
+  text-decoration: none;
+}
+
+.no-underline:hover {
+  text-decoration: none;
+}
+
+/* Button that looks like a link */
+.link-button {
+  background: none;
+  border: none;
+  color: var(--color-link);
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.link-button:hover {
+  color: var(--color-link);
+  text-decoration: underline;
+}
