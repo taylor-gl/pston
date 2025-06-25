@@ -1,16 +1,17 @@
 <script lang="ts">
-  import { supabase } from '$lib/supabase/client'
-  import Icon from '@iconify/svelte'
+  import Icon from '@iconify/svelte';
+
+  import { supabase } from '$lib/supabase/client';
 
   async function signInWithGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback`
-      }
-    })
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
     if (error) {
-      alert(error.message)
+      alert(error.message);
     }
   }
 </script>
@@ -18,7 +19,7 @@
 <div>
   <h1>Welcome!</h1>
   <p>Please sign in to continue:</p>
-  
+
   <button on:click={signInWithGoogle} class="google-btn">
     <Icon icon="devicon:google" width="20" height="20" />
     Sign in with Google
@@ -41,6 +42,4 @@
   .google-btn:hover:not(:disabled) {
     background: #f8f9fa;
   }
-
-
-</style> 
+</style>

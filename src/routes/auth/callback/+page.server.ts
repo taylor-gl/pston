@@ -1,14 +1,16 @@
-import { redirect } from '@sveltejs/kit'
-import { createSupabaseServerClient } from '$lib/supabase/server'
-import type { PageServerLoad } from './$types'
+import { redirect } from '@sveltejs/kit';
+
+import type { PageServerLoad } from './$types';
+
+import { createSupabaseServerClient } from '$lib/supabase/server';
 
 export const load: PageServerLoad = async (event) => {
-  const supabase = createSupabaseServerClient(event)
-  const code = event.url.searchParams.get('code')
+  const supabase = createSupabaseServerClient(event);
+  const code = event.url.searchParams.get('code');
 
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code)
+    await supabase.auth.exchangeCodeForSession(code);
   }
 
-  throw redirect(303, '/')
-} 
+  throw redirect(303, '/');
+};
