@@ -5,6 +5,10 @@
   --color-text: #333;
   --color-borders: #888888;
   --color-link: #0645ad;
+  --color-bg-light: #f8f9fa;
+  --color-error: #d32f2f;
+  --color-error-bg: #ffebee;
+  --color-link-hover: #0033a0;
 }
 
 body {
@@ -16,7 +20,7 @@ body {
 }
 
 h1 {
-  font-family: 'Linux Libertine', Georgia, Times, 'Source Serif Pro', serif;
+  font-family: Georgia, Times, 'Source Serif Pro', serif;
   font-size: 2.25rem; /* 36px */
   font-weight: normal;
   line-height: 1.2;
@@ -24,7 +28,7 @@ h1 {
 }
 
 h2 {
-  font-family: 'Linux Libertine', Georgia, Times, 'Source Serif Pro', serif;
+  font-family: Georgia, Times, 'Source Serif Pro', serif;
   font-size: 1.875rem; /* 30px */
   font-weight: normal;
   line-height: 1.3;

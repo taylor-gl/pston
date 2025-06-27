@@ -3,28 +3,20 @@
   import { onMount } from 'svelte';
 
   import { supabase } from '$lib/supabase/client';
+  import { getCurrentUser } from '$lib/services/auth';
 
   let user: User | null = null;
 
   onMount(() => {
-    // Get initial user
-    supabase.auth.getUser().then(({ data: { user: initialUser } }) => {
-      user = initialUser;
+    getCurrentUser().then((currentUser) => {
+      user = currentUser;
     });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      user = session?.user ?? null;
-    });
-
-    return () => subscription.unsubscribe();
   });
 
   async function signOut() {
     await supabase.auth.signOut();
     user = null;
+    location.reload();
   }
 
   function getUserDisplayName(user: User | null): string {
@@ -41,7 +33,7 @@
 <nav>
   <div class="nav-container">
     <h1>
-      <a href="/" class="no-underline"> People Saying Their Own Names </a>
+      <a href="/" class="nav-title"> People Saying Their Own Names </a>
     </h1>
 
     <div class="nav-actions">
@@ -76,5 +68,14 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+  }
+
+  .nav-title {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .nav-title:hover {
+    text-decoration: underline;
   }
 </style>

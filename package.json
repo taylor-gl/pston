@@ -8,14 +8,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "prepare": "husky",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "type-check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "type-check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "type-check": "tsc --noEmit",
-    "validate": "npm run format:check && npm run lint && npm run type-check && npm run check",
+    "validate": "npm run format:check && npm run lint && npm run type-check",
     "fix": "npm run format && npm run lint:fix"
   },
   "devDependencies": {
@@ -47,7 +46,8 @@
     "@iconify/svelte": "^5.0.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.1",
-    "modern-normalize": "^3.0.1"
+    "modern-normalize": "^3.0.1",
+    "svelte-easy-crop": "^4.0.1"
   },
   "lint-staged": {
     "*.{js,ts,svelte}": [

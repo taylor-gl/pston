@@ -3,13 +3,13 @@
   import { onMount } from 'svelte';
 
   import { goto } from '$app/navigation';
-  import { supabase } from '$lib/supabase/client';
+  import { getCurrentUser } from '$lib/services/auth';
 
   let user: User | null = null;
   let loading = true;
 
   onMount(() => {
-    supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
+    getCurrentUser().then((currentUser) => {
       if (!currentUser) {
         goto('/');
         return;

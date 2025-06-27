@@ -40,6 +40,6 @@
   }
 
   .google-btn:hover:not(:disabled) {
-    background: #f8f9fa;
+    background: var(--color-bg-light);
   }
 </style>
