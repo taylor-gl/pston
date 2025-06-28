@@ -10,6 +10,9 @@ export async function getAllPublicFigures(): Promise<PublicFigure[]> {
     .order('name', { ascending: true });
 
   if (error) {
+    if (error.code === '42501' || error.code === 'PGRST301') {
+      throw new Error(`Unable to load public figures. Please refresh the page and try again.`);
+    }
     throw new Error(`Failed to fetch public figures: ${error.message}`);
   }
 
@@ -25,8 +28,10 @@ export async function getPublicFigureBySlug(slug: string): Promise<PublicFigure 
 
   if (error) {
     if (error.code === 'PGRST116') {
-      // No rows returned
       return null;
+    }
+    if (error.code === '42501' || error.code === 'PGRST301') {
+      throw new Error(`Unable to load this public figure. Please refresh the page and try again.`);
     }
     throw new Error(`Failed to fetch public figure: ${error.message}`);
   }
@@ -46,6 +51,12 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
     .upload(fileName, figure.image);
 
   if (uploadError) {
+    if (uploadError.message?.includes('file size')) {
+      throw new Error(`Image file is too large. Please choose a smaller image (under 10MB).`);
+    }
+    if (uploadError.message?.includes('not allowed') || uploadError.message?.includes('file type')) {
+      throw new Error(`Invalid image format. Please choose a JPEG, PNG, or WebP image.`);
+    }
     throw new Error(`Failed to upload image: ${uploadError.message}`);
   }
 
@@ -69,24 +80,39 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
   if (error) {
     // If we failed to create the database record, clean up the uploaded image
     await supabase.storage.from('public-figure-images').remove([fileName]);
+    
+    // Provide human-readable error messages for common database issues
+    if (error.code === '23505') {
+      throw new Error(`A public figure with a similar name already exists. Please choose a different name.`);
+    }
+    
+    if (error.code === '42501') {
+      throw new Error(`You don't have permission to create public figures. Please sign in and try again.`);
+    }
+    
+    if (error.code === 'PGRST301') {
+      throw new Error(`You don't have permission to create public figures. Please sign in and try again.`);
+    }
+    
     throw new Error(`Failed to create public figure: ${error.message}`);
   }
 
   return data;
 }
 
-/**
- * Constructs the proper image URL for a given filename.
- * In development, uses the Vite proxy. In production, uses the full Supabase URL.
- */
 export function getImageUrl(filename: string | null): string | null {
-  if (!filename) return null;
+  if (
+    !filename ||
+    filename.includes('..') ||
+    filename.includes('javascript:') ||
+    filename.includes('\\')
+  ) {
+    return null;
+  }
 
   if (dev) {
-    // Use Vite proxy in development
     return `/storage/v1/object/public/public-figure-images/${filename}`;
   } else {
-    // Use full Supabase URL in production
     const { data } = supabase.storage.from('public-figure-images').getPublicUrl(filename);
     return data.publicUrl;
   }

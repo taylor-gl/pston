@@ -90,8 +90,9 @@
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              const processedFile = new File([blob], imageFile.name, {
-                type: imageFile.type,
+              const fileName = imageFile.name.replace(/\.[^/.]+$/, '.webp');
+              const processedFile = new File([blob], fileName, {
+                type: 'image/webp',
                 lastModified: Date.now(),
               });
               resolve(processedFile);
@@ -99,7 +100,7 @@
               reject(new Error('Failed to create blob from canvas'));
             }
           },
-          imageFile.type,
+          'image/webp',
           0.9
         );
       };
