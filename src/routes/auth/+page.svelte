@@ -16,6 +16,14 @@
   }
 </script>
 
+<svelte:head>
+  <title>Sign In - People Saying Their Own Names</title>
+  <meta
+    name="description"
+    content="Sign in to People Saying Their Own Names to add new public figures and contribute to our collection of people saying their own names."
+  />
+</svelte:head>
+
 <div>
   <h1>Welcome!</h1>
   <p>Please sign in to continue:</p>

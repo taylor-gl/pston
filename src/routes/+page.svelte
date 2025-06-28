@@ -29,6 +29,14 @@
   });
 </script>
 
+<svelte:head>
+  <title>People Saying Their Own Names</title>
+  <meta
+    name="description"
+    content="Videos of people saying their own names. We collect real clips of public figures saying their own names—so you don't have to guess."
+  />
+</svelte:head>
+
 <div>
   <div class="header">
     <div class="giraffe-container">
@@ -40,8 +48,8 @@
       />
     </div>
     <div class="header-text">
-      <h2>It's embarrassing to say someone's name&nbsp;wrong.</h2>
-      <p>We collect real clips of people saying their own names—so you can get it right.</p>
+      <h2>Videos of people saying their own&nbsp;names.</h2>
+      <p>We collect real clips of people saying their own names—so you don't have to&nbsp;guess.</p>
     </div>
   </div>
 
@@ -125,6 +133,7 @@
 
   .header-text {
     flex: 1;
+    text-align: center;
   }
 
   .header-text h2 {

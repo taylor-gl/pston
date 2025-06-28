@@ -29,7 +29,11 @@
 </script>
 
 <svelte:head>
-  <title>Account - Pston</title>
+  <title>Account - People Saying Their Own Names</title>
+  <meta
+    name="description"
+    content="Manage your People Saying Their Own Names account settings and view your profile information."
+  />
 </svelte:head>
 
 {#if loading}

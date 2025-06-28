@@ -148,6 +148,10 @@
 
 <svelte:head>
   <title>Add New Public Figure - People Saying Their Own Names</title>
+  <meta
+    name="description"
+    content="Add a new public figure to our collection. Upload their photo and information to help others learn how to pronounce their name correctly."
+  />
 </svelte:head>
 
 <div class="page-content">
