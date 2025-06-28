@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 # Supabase
 supabase/.temp
 supabase/.env.local
+
+# Generated images
+static/images

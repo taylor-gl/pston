@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "npm run build:images && vite build",
+    "build:images": "node scripts/build-images.js",
     "preview": "vite preview",
     "prepare": "husky",
     "type-check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -34,6 +35,7 @@
     "lint-staged": "^16.1.2",
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.3",
+    "sharp": "^0.33.5",
     "supabase": "^2.26.9",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",

@@ -4,6 +4,7 @@
   import type { User } from '@supabase/supabase-js';
   import { getAllPublicFigures, getImageUrl } from '$lib/services/public-figures';
   import { getCurrentUser } from '$lib/services/auth';
+  import ResponsiveImage from '$lib/components/ResponsiveImage.svelte';
 
   let publicFigures: PublicFigure[] = [];
   let loading = true;
@@ -30,8 +31,18 @@
 
 <div>
   <div class="header">
-    <h2>It's embarrassing to say someone's name wrong.</h2>
-    <p>We collect real clips of people saying their own names—so you can get it right.</p>
+    <div class="giraffe-container">
+      <ResponsiveImage
+        name="giraffe"
+        alt="Giraffe saying 'Giraffe!'"
+        sizes="(max-width: 768px) 80vw, 300px"
+        class="giraffe-image"
+      />
+    </div>
+    <div class="header-text">
+      <h2>It's embarrassing to say someone's name&nbsp;wrong.</h2>
+      <p>We collect real clips of people saying their own names—so you can get it right.</p>
+    </div>
   </div>
 
   <div class="figures-section">
@@ -80,6 +91,46 @@
 </div>
 
 <style>
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    margin: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      gap: 1.5rem;
+      text-align: center;
+    }
+  }
+
+  .giraffe-container {
+    flex-shrink: 0;
+  }
+
+  .giraffe-image {
+    width: 300px;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .giraffe-image {
+      width: 80vw;
+      max-width: 300px;
+    }
+  }
+
+  .header-text {
+    flex: 1;
+  }
+
+  .header-text h2 {
+    margin-top: 0;
+  }
+
   .create-link {
     font-weight: 500;
   }
