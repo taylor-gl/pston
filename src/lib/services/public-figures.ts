@@ -1,6 +1,7 @@
 import { supabase } from '$lib/supabase/client';
 import type { PublicFigure, NewPublicFigure } from '$lib/types';
 import { createSlug } from '$lib/types';
+import { dev } from '$app/environment';
 
 export async function getAllPublicFigures(): Promise<PublicFigure[]> {
   const { data, error } = await supabase
@@ -48,12 +49,8 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
     throw new Error(`Failed to upload image: ${uploadError.message}`);
   }
 
-  // Get public URL for the uploaded image
-  const { data: urlData } = supabase.storage
-    .from('public-figure-images')
-    .getPublicUrl(uploadData.path);
-
-  const image_url = urlData.publicUrl;
+  // Store only the filename in the database
+  const image_filename = uploadData.path;
 
   // Insert the public figure record
   const { data, error } = await supabase
@@ -63,7 +60,7 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
         name: figure.name,
         slug,
         description: figure.description,
-        image_url,
+        image_filename,
       },
     ])
     .select()
@@ -78,7 +75,19 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
   return data;
 }
 
-export function getImageUrl(path: string): string {
-  const { data } = supabase.storage.from('public-figure-images').getPublicUrl(path);
-  return data.publicUrl;
+/**
+ * Constructs the proper image URL for a given filename.
+ * In development, uses the Vite proxy. In production, uses the full Supabase URL.
+ */
+export function getImageUrl(filename: string | null): string | null {
+  if (!filename) return null;
+
+  if (dev) {
+    // Use Vite proxy in development
+    return `/storage/v1/object/public/public-figure-images/${filename}`;
+  } else {
+    // Use full Supabase URL in production
+    const { data } = supabase.storage.from('public-figure-images').getPublicUrl(filename);
+    return data.publicUrl;
+  }
 }

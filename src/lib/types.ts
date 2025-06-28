@@ -3,7 +3,7 @@ export interface PublicFigure {
   name: string;
   slug: string;
   description: string;
-  image_url: string | null;
+  image_filename: string | null;
   created_at: string;
   updated_at: string;
   created_by: string | null;

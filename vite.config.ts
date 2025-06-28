@@ -7,5 +7,16 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     port: 5173,
+    proxy: {
+      '/storage': {
+        target: 'http://127.0.0.1:54321',
+        changeOrigin: true,
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            proxyReq.removeHeader('cookie');
+          });
+        },
+      },
+    },
   },
 });

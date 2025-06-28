@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import type { PublicFigure } from '$lib/types';
   import type { User } from '@supabase/supabase-js';
-  import { getAllPublicFigures } from '$lib/services/public-figures';
+  import { getAllPublicFigures, getImageUrl } from '$lib/services/public-figures';
   import { getCurrentUser } from '$lib/services/auth';
 
   let publicFigures: PublicFigure[] = [];
@@ -61,9 +61,9 @@
       <ul class="figures-list">
         {#each publicFigures as figure (figure.id)}
           <li class="figure-item">
-            {#if figure.image_url}
+            {#if figure.image_filename}
               <div class="figure-thumbnail">
-                <img src={figure.image_url} alt={figure.name} loading="lazy" />
+                <img src={getImageUrl(figure.image_filename)} alt={figure.name} loading="lazy" />
               </div>
             {/if}
             <div class="figure-text">

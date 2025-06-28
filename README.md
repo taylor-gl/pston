@@ -1,22 +1,44 @@
-# sv
+# People Saying Their Own Names (pston)
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+## Setting up the dev environment
 
-## Creating a project
+Docker Desktop must be installed for the local supabase. On Linux, I had to do `mkdir /socket_mnt`, and then add `/socket_mnt` to Docker Desktop `Virtual file shares` setting at Settings -> Resources -> File sharing. Permissions on `/socket_mnt` must be sufficiently loose.
 
-If you're seeing this, you've probably already done this step. Congrats!
+Then you can run:
 
 ```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+npx supabase start -x vector
 ```
 
-## Developing
+(Vector gives me issues, and we're not using it)
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+You can access postgres through the URL it gives:
+
+```bash
+psql postgresql://postgres:postgres@127.0.0.1:54322/postgres
+```
+
+To stop the local supabase:
+
+```bash
+npx supabase stop
+```
+
+## Migrations
+
+Local:
+
+```bash
+supabase db push --local
+```
+
+Remote:
+
+```bash
+supabase db push
+```
+
+## Running the dev environment
 
 ```bash
 npm run dev
@@ -24,15 +46,3 @@ npm run dev
 # or start the server and open the app in a new browser tab
 npm run dev -- --open
 ```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

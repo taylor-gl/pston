@@ -6,10 +6,10 @@ export const handle: Handle = async ({ event, resolve }) => {
   const supabase = createSupabaseServerClient(event);
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  event.locals.session = session;
+  event.locals.user = user;
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {

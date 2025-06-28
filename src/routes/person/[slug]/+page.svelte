@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PublicFigure } from '$lib/types';
+  import { getImageUrl } from '$lib/services/public-figures';
 
   export let data: { publicFigure: PublicFigure };
   $: ({ publicFigure } = data);
@@ -15,9 +16,13 @@
     <h1>{publicFigure.name}</h1>
 
     <div class="figure-info">
-      {#if publicFigure.image_url}
+      {#if publicFigure.image_filename}
         <div class="figure-image">
-          <img src={publicFigure.image_url} alt={publicFigure.name} loading="lazy" />
+          <img
+            src={getImageUrl(publicFigure.image_filename)}
+            alt={publicFigure.name}
+            loading="lazy"
+          />
         </div>
       {/if}
 
