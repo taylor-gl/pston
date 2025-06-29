@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from '@iconify/svelte';
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import type { PublicFigure } from '$lib/types';
@@ -143,17 +144,7 @@
         spellcheck="false"
       />
       <button type="submit" class="search-button" aria-label="Search">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="m21 21-4.35-4.35"></path>
-          <circle cx="11" cy="11" r="8"></circle>
-        </svg>
+        <Icon icon="material-symbols:search" width="16" height="16" />
       </button>
     </div>
   </form>
@@ -162,7 +153,7 @@
     <div bind:this={suggestionsContainer} class="suggestions-container">
       {#if loading && isFirstSearch && suggestions.length === 0}
         <div class="status-message loading">
-          <div class="spinner"></div>
+          <Icon icon="line-md:loading-loop" width="16" height="16" />
           <span>Searching...</span>
         </div>
       {:else if suggestions.length === 0 && searchQuery.length >= 2 && !loading}
@@ -252,61 +243,42 @@
 
   .suggestions-list {
     list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
   }
 
   .suggestion-wrapper {
     display: block;
     width: 100%;
+    padding: 0 0.5rem;
+    margin: 0;
     border: none;
     background: none;
     text-align: left;
     cursor: pointer;
-    color: var(--color-text);
-    border-bottom: 1px solid #f0f0f0;
-    padding: 0 8px;
   }
 
-  .suggestion-wrapper:hover,
-  .suggestion-wrapper.selected {
+  .suggestion-wrapper:hover {
     background: var(--color-bg-light);
+  }
+
+  .suggestion-wrapper.selected {
+    background-color: var(--color-bg-light);
+    outline: 1px solid var(--color-accent);
   }
 
   .status-message {
     padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    text-align: center;
     color: var(--color-borders);
     font-size: 0.9rem;
-    justify-content: center;
   }
 
   .status-message.loading {
-    color: var(--color-text);
-  }
-
-  .status-message.no-results {
-    color: var(--color-borders);
-  }
-
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--color-bg-light);
-    border-top: 2px solid var(--color-text);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
   }
 
   /* Mobile responsive */

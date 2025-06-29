@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from '@iconify/svelte';
   import type { User } from '@supabase/supabase-js';
   import { onMount } from 'svelte';
 
@@ -72,11 +73,7 @@
 
       <div class="mobile-menu-container mobile-only">
         <button on:click={toggleMobileMenu} class="mobile-menu-button" aria-label="Menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="5" cy="12" r="2"></circle>
-            <circle cx="12" cy="12" r="2"></circle>
-            <circle cx="19" cy="12" r="2"></circle>
-          </svg>
+          <Icon icon="line-md:menu" width="24" height="24" />
         </button>
 
         {#if showMobileMenu}
