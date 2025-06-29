@@ -132,3 +132,32 @@ export function getImageUrl(filename: string | null): string | null {
     return data.publicUrl;
   }
 }
+
+export async function searchPublicFigures(
+  query: string,
+  limit: number = 10
+): Promise<PublicFigure[]> {
+  if (!query.trim()) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('public_figures')
+    .select('*')
+    .ilike('name', `%${query}%`)
+    .order('name', { ascending: true })
+    .limit(limit);
+
+  if (error) {
+    if (error.code === '42501' || error.code === 'PGRST301') {
+      throw new Error(`Unable to search public figures. Please refresh the page and try again.`);
+    }
+    throw new Error(`Failed to search public figures: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function getSearchSuggestions(query: string): Promise<PublicFigure[]> {
+  return searchPublicFigures(query, 5);
+}

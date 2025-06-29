@@ -29,13 +29,13 @@ npx supabase stop
 Local:
 
 ```bash
-supabase db push --local
+npx supabase db push --local
 ```
 
-Remote:
+Remote: (Run this after `git push` when pushing to prod if there are new migrations to run.)
 
 ```bash
-supabase db push
+npx supabase db push
 ```
 
 ## Running the dev environment

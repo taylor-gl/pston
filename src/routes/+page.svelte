@@ -2,9 +2,10 @@
   import { onMount } from 'svelte';
   import type { PublicFigure } from '$lib/types';
   import type { User } from '@supabase/supabase-js';
-  import { getAllPublicFigures, getImageUrl } from '$lib/services/public-figures';
+  import { getAllPublicFigures } from '$lib/services/public-figures';
   import { getCurrentUser } from '$lib/services/auth';
   import ResponsiveImage from '$lib/components/ResponsiveImage.svelte';
+  import PublicFigureListItem from '$lib/components/PublicFigureListItem.svelte';
 
   let publicFigures: PublicFigure[] = [];
   let loading = true;
@@ -79,19 +80,7 @@
       </div>
       <ul class="figures-list">
         {#each publicFigures as figure (figure.id)}
-          <li class="figure-item">
-            {#if figure.image_filename}
-              <div class="figure-thumbnail">
-                <img src={getImageUrl(figure.image_filename)} alt={figure.name} loading="lazy" />
-              </div>
-            {/if}
-            <div class="figure-text">
-              <a href="/person/{figure.slug}" class="figure-link">
-                {figure.name}
-              </a>
-              <span class="description">— {figure.description}</span>
-            </div>
-          </li>
+          <PublicFigureListItem {figure} />
         {/each}
       </ul>
     {/if}
@@ -147,41 +136,6 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    line-height: 1.6;
-  }
-
-  .figure-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 0;
-  }
-
-  .figure-thumbnail {
-    flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-  }
-
-  .figure-thumbnail img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .figure-text {
-    flex: 1;
-  }
-
-  .figure-link {
-    font-weight: 500;
-  }
-
-  .description {
-    color: var(--color-text);
-    opacity: 0.7;
-    font-size: 0.9rem;
   }
 
   .error {
