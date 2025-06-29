@@ -141,12 +141,10 @@ export async function searchPublicFigures(
     return [];
   }
 
-  const { data, error } = await supabase
-    .from('public_figures')
-    .select('*')
-    .ilike('name', `%${query}%`)
-    .order('name', { ascending: true })
-    .limit(limit);
+  const { data, error } = await supabase.rpc('search_public_figures_fuzzy', {
+    search_query: query.trim(),
+    result_limit: limit,
+  });
 
   if (error) {
     if (error.code === '42501' || error.code === 'PGRST301') {

@@ -24,7 +24,7 @@
     error = null;
 
     try {
-      searchResults = await searchPublicFigures(query, 50);
+      searchResults = await searchPublicFigures(query, 10);
     } catch (err) {
       error = err instanceof Error ? err.message : 'Search failed';
       searchResults = [];

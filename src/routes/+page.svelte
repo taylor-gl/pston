@@ -108,7 +108,7 @@
   }
 
   @media (max-width: 768px) {
-    .giraffe-image {
+    :global(.giraffe-image) {
       width: 80vw;
       max-width: 300px;
     }

@@ -142,7 +142,7 @@
         autocapitalize="off"
         spellcheck="false"
       />
-      <button type="submit" class="search-button">
+      <button type="submit" class="search-button" aria-label="Search">
         <svg
           width="16"
           height="16"
