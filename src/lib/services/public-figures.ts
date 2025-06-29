@@ -1,6 +1,5 @@
 import { supabase } from '$lib/supabase/client';
 import type { PublicFigure, NewPublicFigure } from '$lib/types';
-import { createSlug } from '$lib/types';
 import { dev } from '$app/environment';
 
 export async function getAllPublicFigures(): Promise<PublicFigure[]> {
@@ -40,7 +39,14 @@ export async function getPublicFigureBySlug(slug: string): Promise<PublicFigure 
 }
 
 export async function createPublicFigure(figure: NewPublicFigure): Promise<PublicFigure> {
-  const slug = createSlug(figure.name);
+  const { data: slug, error: slugError } = await supabase.rpc('generate_unique_slug', {
+    p_name: figure.name,
+    p_description: figure.description,
+  });
+
+  if (slugError) {
+    throw new Error(`Failed to generate slug: ${slugError.message}`);
+  }
 
   // Upload image (required)
   const fileExt = figure.image.name.split('.').pop();
@@ -54,7 +60,10 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
     if (uploadError.message?.includes('file size')) {
       throw new Error(`Image file is too large. Please choose a smaller image (under 10MB).`);
     }
-    if (uploadError.message?.includes('not allowed') || uploadError.message?.includes('file type')) {
+    if (
+      uploadError.message?.includes('not allowed') ||
+      uploadError.message?.includes('file type')
+    ) {
       throw new Error(`Invalid image format. Please choose a JPEG, PNG, or WebP image.`);
     }
     throw new Error(`Failed to upload image: ${uploadError.message}`);
@@ -80,20 +89,26 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
   if (error) {
     // If we failed to create the database record, clean up the uploaded image
     await supabase.storage.from('public-figure-images').remove([fileName]);
-    
+
     // Provide human-readable error messages for common database issues
     if (error.code === '23505') {
-      throw new Error(`A public figure with a similar name already exists. Please choose a different name.`);
+      throw new Error(
+        `A public figure with a similar name already exists. Please choose a different name.`
+      );
     }
-    
+
     if (error.code === '42501') {
-      throw new Error(`You don't have permission to create public figures. Please sign in and try again.`);
+      throw new Error(
+        `You don't have permission to create public figures. Please sign in and try again.`
+      );
     }
-    
+
     if (error.code === 'PGRST301') {
-      throw new Error(`You don't have permission to create public figures. Please sign in and try again.`);
+      throw new Error(
+        `You don't have permission to create public figures. Please sign in and try again.`
+      );
     }
-    
+
     throw new Error(`Failed to create public figure: ${error.message}`);
   }
 

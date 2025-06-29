@@ -2,7 +2,6 @@
   import { goto } from '$app/navigation';
   import { createPublicFigure } from '$lib/services/public-figures';
   import type { NewPublicFigure } from '$lib/types';
-  import { createSlug } from '$lib/types';
   import Cropper from 'svelte-easy-crop';
 
   interface Pixels {

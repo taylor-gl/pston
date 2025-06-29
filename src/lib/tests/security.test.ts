@@ -1,49 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { createSlug } from '../types';
 import { getImageUrl } from '../services/public-figures';
 
 describe('Security Tests', () => {
-  describe('Input Validation & XSS Prevention', () => {
-    it('should sanitize malicious script tags in names', () => {
-      const maliciousInputs = [
-        '<script>alert("xss")</script>',
-        '"><script>alert("xss")</script>',
-        'javascript:alert("xss")',
-        '<img src=x onerror=alert("xss")>',
-        '<svg onload=alert("xss")>',
-      ];
-
-      maliciousInputs.forEach((input) => {
-        const slug = createSlug(input);
-        expect(slug).not.toContain('<');
-        expect(slug).not.toContain('>');
-        expect(slug).not.toContain('(');
-        expect(slug).not.toContain(')');
-        expect(slug).not.toContain(':');
-        expect(slug).not.toMatch(/[^a-z0-9-]/);
-      });
-    });
-
-    it('should handle Unicode and special characters safely', () => {
-      const unicodeInputs = [
-        'José María',
-        '北京',
-        '🎭🎪',
-        'café',
-        'naïve',
-        '../../etc/passwd',
-        '../../../windows/system32',
-      ];
-
-      unicodeInputs.forEach((input) => {
-        const slug = createSlug(input);
-        expect(slug).not.toContain('/');
-        expect(slug).not.toContain('\\');
-        expect(slug).not.toContain('..');
-      });
-    });
-  });
-
   describe('File Upload Security', () => {
     it('should identify potential security issues in files', () => {
       const testFiles = [

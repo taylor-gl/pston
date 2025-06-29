@@ -14,11 +14,3 @@ export interface NewPublicFigure {
   description: string;
   image: File;
 }
-
-export function createSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}

@@ -118,12 +118,6 @@
     flex-shrink: 0;
   }
 
-  .giraffe-image {
-    width: 300px;
-    height: auto;
-    border-radius: 8px;
-  }
-
   @media (max-width: 768px) {
     .giraffe-image {
       width: 80vw;
