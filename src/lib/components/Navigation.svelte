@@ -7,8 +7,8 @@
   import { getCurrentUser } from '$lib/services/auth';
   import SearchBar from './SearchBar.svelte';
 
-  let user: User | null = null;
-  let showMobileMenu = false;
+  let user: User | null = $state(null);
+  let showMobileMenu = $state(false);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -65,26 +65,26 @@
           <a href="/account">
             {getUserDisplayName(user)}
           </a>
-          <button on:click={signOut} class="link-button">Sign out</button>
+          <button onclick={signOut} class="link-button">Sign out</button>
         {:else}
           <a href="/auth">Sign in</a>
         {/if}
       </div>
 
       <div class="mobile-menu-container mobile-only">
-        <button on:click={toggleMobileMenu} class="mobile-menu-button" aria-label="Menu">
+        <button onclick={toggleMobileMenu} class="mobile-menu-button" aria-label="Menu">
           <Icon icon="line-md:menu" width="24" height="24" />
         </button>
 
         {#if showMobileMenu}
           <div class="mobile-menu">
             {#if user}
-              <a href="/account" on:click={() => (showMobileMenu = false)}>
+              <a href="/account" onclick={() => (showMobileMenu = false)}>
                 {getUserDisplayName(user)}
               </a>
-              <button on:click={signOut} class="link-button">Sign out</button>
+              <button onclick={signOut} class="link-button">Sign out</button>
             {:else}
-              <a href="/auth" on:click={() => (showMobileMenu = false)}>Sign in</a>
+              <a href="/auth" onclick={() => (showMobileMenu = false)}>Sign in</a>
             {/if}
           </div>
         {/if}

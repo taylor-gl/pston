@@ -2,10 +2,17 @@
   import type { PublicFigure } from '$lib/types';
   import { getImageUrl } from '$lib/services/public-figures';
 
-  export let figure: PublicFigure;
-  export let variant: 'default' | 'small' = 'default';
+  let {
+    figure,
+    variant = 'default',
+    showLink = true,
+  }: {
+    figure: PublicFigure;
+    variant?: 'default' | 'small';
+    showLink?: boolean;
+  } = $props();
 
-  $: imageSize = variant === 'small' ? 32 : 48;
+  let imageSize = $derived(variant === 'small' ? 32 : 48);
 </script>
 
 <li class="figure-item" class:small={variant === 'small'}>
@@ -16,9 +23,15 @@
   {/if}
   <div class="figure-text">
     <div class="figure-name">
-      <a href="/person/{figure.slug}" class="figure-link">
-        {figure.name}
-      </a>
+      {#if showLink}
+        <a href="/person/{figure.slug}" class="figure-link">
+          {figure.name}
+        </a>
+      {:else}
+        <span class="figure-link">
+          {figure.name}
+        </span>
+      {/if}
     </div>
     <div class="figure-description">{figure.description}</div>
   </div>
@@ -59,6 +72,16 @@
 
   .figure-link {
     font-weight: 500;
+  }
+
+  a.figure-link {
+    color: var(--color-link);
+    text-decoration: none;
+  }
+
+  a.figure-link:hover {
+    color: var(--color-link);
+    text-decoration: underline;
   }
 
   .figure-description {

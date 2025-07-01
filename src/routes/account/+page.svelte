@@ -5,8 +5,9 @@
   import { goto } from '$app/navigation';
   import { getCurrentUser } from '$lib/services/auth';
 
-  let user: User | null = null;
-  let loading = true;
+  let user: User | null = $state(null);
+  let loading = $state(true);
+  let error: string | null = $state(null);
 
   onMount(() => {
     getCurrentUser().then((currentUser) => {

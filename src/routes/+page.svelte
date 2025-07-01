@@ -6,11 +6,12 @@
   import { getCurrentUser } from '$lib/services/auth';
   import ResponsiveImage from '$lib/components/ResponsiveImage.svelte';
   import PublicFigureListItem from '$lib/components/PublicFigureListItem.svelte';
+  import YouTubePlayer from '$lib/components/YouTubePlayer.svelte';
 
-  let publicFigures: PublicFigure[] = [];
-  let loading = true;
-  let error: string | null = null;
-  let user: User | null = null;
+  let publicFigures: PublicFigure[] = $state([]);
+  let loading = $state(true);
+  let error: string | null = $state(null);
+  let user: User | null = $state(null);
 
   onMount(() => {
     getCurrentUser().then((currentUser) => {
@@ -54,13 +55,15 @@
     </div>
   </div>
 
+  <YouTubePlayer videoId="j8LqMv416mw" startTimestamp={0.0} stopTimestamp={2.1} />
+
   <div class="figures-section">
     <h2>Popular Public Figures</h2>
 
     {#if loading}
       <p>Loading...</p>
     {:else if error}
-      <p class="error">Error: {error}</p>
+      <p class="error-message">Error: {error}</p>
     {:else if publicFigures.length === 0}
       <p>
         No public figures yet.
@@ -73,9 +76,9 @@
     {:else}
       <div class="add-figure-container">
         {#if user}
-          <a href="/person/new" class="create-link">Add a new public figure</a>
+          <a href="/pronunciation/new" class="create-link">Add a new pronunciation example</a>
         {:else}
-          <a href="/auth" class="create-link">Sign in to add a new public figure</a>
+          <a href="/auth" class="create-link">Sign in to add a new pronunciation example</a>
         {/if}
       </div>
       <ul class="figures-list">
@@ -136,11 +139,5 @@
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-
-  .error {
-    color: var(--color-error);
-    background-color: var(--color-error-bg);
-    padding: 0.5rem;
   }
 </style>

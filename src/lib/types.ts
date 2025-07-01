@@ -14,3 +14,22 @@ export interface NewPublicFigure {
   description: string;
   image: File;
 }
+
+export interface PronunciationExample {
+  id: string;
+  public_figure_id: string;
+  youtube_video_id: string;
+  start_timestamp: number;
+  end_timestamp: number;
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+  public_figure?: PublicFigure;
+}
+
+export interface NewPronunciationExample {
+  public_figure_id: string;
+  youtube_video_id: string;
+  start_timestamp: number;
+  end_timestamp: number;
+}

@@ -6,15 +6,15 @@
   import { getSearchSuggestions } from '$lib/services/public-figures';
   import PublicFigureListItem from './PublicFigureListItem.svelte';
 
-  let searchQuery = '';
-  let suggestions: PublicFigure[] = [];
-  let showSuggestions = false;
-  let loading = false;
-  let isFirstSearch = true;
+  let searchQuery = $state('');
+  let suggestions: PublicFigure[] = $state([]);
+  let showSuggestions = $state(false);
+  let loading = $state(false);
+  let isFirstSearch = $state(true);
   let searchTimeout: ReturnType<typeof setTimeout>;
-  let searchInput: HTMLInputElement;
-  let suggestionsContainer: HTMLElement;
-  let selectedIndex = -1;
+  let searchInput = $state<HTMLInputElement>();
+  let searchContainer = $state<HTMLElement>();
+  let selectedIndex = $state(-1);
 
   async function handleInput() {
     const query = searchQuery.trim();
@@ -98,18 +98,13 @@
         break;
       case 'Escape':
         hideSuggestions();
-        searchInput.blur();
+        searchInput?.blur();
         break;
     }
   }
 
   function handleClickOutside(event: Event) {
-    if (
-      searchInput &&
-      suggestionsContainer &&
-      !searchInput.contains(event.target as Node) &&
-      !suggestionsContainer.contains(event.target as Node)
-    ) {
+    if (searchContainer && !searchContainer.contains(event.target as Node)) {
       hideSuggestions();
     }
   }
@@ -123,15 +118,15 @@
   });
 </script>
 
-<div class="search-container">
-  <form on:submit={handleSubmit} class="search-form">
+<div bind:this={searchContainer} class="search-container">
+  <form onsubmit={handleSubmit} class="search-form">
     <div class="search-input-container">
       <input
         bind:this={searchInput}
         bind:value={searchQuery}
-        on:input={handleInput}
-        on:keydown={handleKeydown}
-        on:focus={() => {
+        oninput={handleInput}
+        onkeydown={handleKeydown}
+        onfocus={() => {
           if (searchQuery.length >= 2 && suggestions.length > 0) {
             showSuggestions = true;
           }
@@ -150,15 +145,15 @@
   </form>
 
   {#if showSuggestions || (loading && isFirstSearch && searchQuery.length >= 2) || (searchQuery.length >= 2 && !loading && suggestions.length === 0)}
-    <div bind:this={suggestionsContainer} class="suggestions-container">
+    <div class="suggestions-container">
       {#if loading && isFirstSearch && suggestions.length === 0}
-        <div class="status-message loading">
-          <Icon icon="line-md:loading-loop" width="16" height="16" />
-          <span>Searching...</span>
+        <div class="help-text loading">
+          <Icon icon="material-symbols:search" />
+          Searching...
         </div>
       {:else if suggestions.length === 0 && searchQuery.length >= 2 && !loading}
-        <div class="status-message no-results">
-          <span>No results found</span>
+        <div class="help-text no-results">
+          No public figures found matching "{searchQuery}"
         </div>
       {:else}
         <ul class="suggestions-list">
@@ -166,9 +161,9 @@
             <button
               class="suggestion-wrapper"
               class:selected={index === selectedIndex}
-              on:click={() => selectSuggestion(suggestion)}
+              onclick={() => selectSuggestion(suggestion)}
             >
-              <PublicFigureListItem figure={suggestion} variant="small" />
+              <PublicFigureListItem figure={suggestion} variant="small" showLink={false} />
             </button>
           {/each}
         </ul>
@@ -224,7 +219,7 @@
   }
 
   .search-button:hover {
-    background: #e5e5e5;
+    background: var(--color-borders);
   }
 
   .suggestions-container {
@@ -232,13 +227,14 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: var(--color-bg);
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
     border: 1px solid var(--color-borders);
     border-top: none;
+    border-radius: 0 0 8px 8px;
+    z-index: 100;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    max-height: 400px;
-    overflow-y: auto;
   }
 
   .suggestions-list {
@@ -267,18 +263,18 @@
     outline: 1px solid var(--color-accent);
   }
 
-  .status-message {
+  .loading {
     padding: 12px;
     text-align: center;
-    color: var(--color-borders);
-    font-size: 0.9rem;
-  }
-
-  .status-message.loading {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+  }
+
+  .no-results {
+    padding: 12px;
+    text-align: center;
   }
 
   /* Mobile responsive */

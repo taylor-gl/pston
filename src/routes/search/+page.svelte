@@ -5,14 +5,16 @@
   import { searchPublicFigures } from '$lib/services/public-figures';
   import PublicFigureListItem from '$lib/components/PublicFigureListItem.svelte';
 
-  let searchQuery = '';
-  let searchResults: PublicFigure[] = [];
-  let loading = false;
-  let error: string | null = null;
+  let searchQuery = $state('');
+  let searchResults: PublicFigure[] = $state([]);
+  let loading = $state(false);
+  let error: string | null = $state(null);
 
-  $: pageTitle = searchQuery
-    ? `Search results for "${searchQuery}" - People Saying Their Own Names`
-    : 'Search - People Saying Their Own Names';
+  let pageTitle = $derived(
+    searchQuery
+      ? `Search results for "${searchQuery}" - People Saying Their Own Names`
+      : 'Search - People Saying Their Own Names'
+  );
 
   async function performSearch(query: string) {
     if (!query.trim()) {
@@ -59,7 +61,7 @@
       {#if loading}
         <p>Searching...</p>
       {:else if error}
-        <p class="error">Error: {error}</p>
+        <p class="error-message">Error: {error}</p>
       {:else if searchResults.length === 0}
         <p>No public figures found matching "{searchQuery}".</p>
         <div class="no-results-help">
@@ -71,7 +73,7 @@
           </ul>
         </div>
       {:else}
-        <p class="results-count">
+        <p class="help-text">
           Found {searchResults.length} result{searchResults.length === 1 ? '' : 's'}
         </p>
 
@@ -101,23 +103,10 @@
     margin-bottom: 1rem;
   }
 
-  .results-count {
-    color: var(--color-borders);
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-  }
-
   .figures-list {
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-
-  .error {
-    color: var(--color-error);
-    background-color: var(--color-error-bg);
-    padding: 0.5rem;
-    border-radius: 4px;
   }
 
   .empty-search {

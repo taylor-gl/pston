@@ -12,6 +12,20 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+
+  interface Window {
+    YT: {
+      Player: new (element: HTMLElement | string, config: any) => any;
+      PlayerState: {
+        PLAYING: number;
+        PAUSED: number;
+        ENDED: number;
+        BUFFERING: number;
+        CUED: number;
+      };
+    };
+    onYouTubeIframeAPIReady: () => void;
+  }
 }
 
 export {};
