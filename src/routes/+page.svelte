@@ -35,7 +35,7 @@
   <title>People Saying Their Own Names</title>
   <meta
     name="description"
-    content="Videos of people saying their own names. We collect real clips of public figures saying their own names—so you don't have to guess."
+    content="Learn to pronounce names correctly. We collect real clips of public figures saying their own names."
   />
 </svelte:head>
 
@@ -50,8 +50,8 @@
       />
     </div>
     <div class="header-text">
-      <h2>Videos of people saying their own&nbsp;names.</h2>
-      <p>We collect real clips of people saying their own names—so you don't have to&nbsp;guess.</p>
+      <h2>Learn to pronounce names correctly.</h2>
+      <p>We collect real clips of public figures saying their own&nbsp;names.</p>
     </div>
   </div>
 

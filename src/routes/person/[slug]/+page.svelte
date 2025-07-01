@@ -11,12 +11,15 @@
   let publicFigure = $derived(data.publicFigure);
 
   let examples: PronunciationExample[] = $state([]);
+  let hiddenExamples: PronunciationExample[] = $state([]);
   let hasMoreExamples = $state(false);
   let totalExamples = $state(0);
+  let hiddenCount = $state(0);
   let currentPage = $state(1);
   let loadingExamples = $state(true);
   let examplesError: string | null = $state(null);
   let user: User | null = $state(null);
+  let showHidden = $state(false);
 
   onMount(() => {
     getCurrentUser().then((currentUser) => {
@@ -32,8 +35,10 @@
       examplesError = null;
       const result = await getPronunciationExamplesByFigureId(publicFigure.id, currentPage);
       examples = result.examples;
+      hiddenExamples = result.hiddenExamples;
       hasMoreExamples = result.hasMore;
       totalExamples = result.total;
+      hiddenCount = result.hiddenCount;
     } catch (err) {
       examplesError = err instanceof Error ? err.message : 'Failed to load pronunciation examples';
     } finally {
@@ -44,6 +49,10 @@
   async function loadNextPage() {
     currentPage += 1;
     await loadExamples();
+  }
+
+  function toggleHidden() {
+    showHidden = !showHidden;
   }
 </script>
 
@@ -73,26 +82,11 @@
     </div>
 
     <section class="pronunciation-section">
-      <div class="section-header">
-        {#if user}
-          <a href="/pronunciation/new?figure={publicFigure.slug}" class="submit-link">
-            Submit a new pronunciation
-          </a>
-        {:else}
-          <a
-            href="/auth?redirect=/pronunciation/new?figure={publicFigure.slug}"
-            class="submit-link"
-          >
-            Sign in to submit a pronunciation
-          </a>
-        {/if}
-      </div>
-
       {#if loadingExamples}
         <p>Loading pronunciation examples...</p>
       {:else if examplesError}
         <p class="error-message">Error: {examplesError}</p>
-      {:else if examples.length === 0}
+      {:else if examples.length === 0 && hiddenCount === 0}
         <div class="no-examples">
           <p>No pronunciation examples yet for {publicFigure.name}.</p>
           {#if user}
@@ -109,6 +103,15 @@
           {/if}
         </div>
       {:else}
+        <div class="section-header">
+          {#if user}
+            <a href="/pronunciation/new?figure={publicFigure.slug}"> Submit a new pronunciation </a>
+          {:else}
+            <a href="/auth?redirect=/pronunciation/new?figure={publicFigure.slug}">
+              Sign in to submit a pronunciation
+            </a>
+          {/if}
+        </div>
         <div class="examples-list">
           {#each examples as example (example.id)}
             <PronunciationExampleItem {example} />
@@ -118,6 +121,26 @@
         {#if hasMoreExamples}
           <div class="pagination">
             <button onclick={loadNextPage} class="btn-secondary"> Load more examples </button>
+          </div>
+        {/if}
+
+        {#if hiddenCount > 0}
+          <div class="hidden-section">
+            <button onclick={toggleHidden} class="hidden-toggle">
+              {#if showHidden}
+                Hide {hiddenCount} downvoted example{hiddenCount === 1 ? '' : 's'}
+              {:else}
+                Show {hiddenCount} downvoted example{hiddenCount === 1 ? '' : 's'} (click to expand)
+              {/if}
+            </button>
+
+            {#if showHidden}
+              <div class="hidden-examples">
+                {#each hiddenExamples as example (example.id)}
+                  <PronunciationExampleItem {example} />
+                {/each}
+              </div>
+            {/if}
           </div>
         {/if}
       {/if}
@@ -152,7 +175,7 @@
   .figure-image {
     padding: 0.5rem;
     flex-shrink: 0;
-    max-width: 300px;
+    max-width: 150px;
   }
 
   .figure-image img {
@@ -165,6 +188,8 @@
 
   .figure-description {
     flex: 1;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   .pronunciation-section {
@@ -174,16 +199,7 @@
   }
 
   .section-header {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
-
-  .submit-link {
-    color: var(--color-link);
-    text-decoration: none;
-    font-size: 0.9rem;
+    padding: 0.5rem 0;
   }
 
   .submit-link:hover {
@@ -208,10 +224,39 @@
     text-align: center;
   }
 
-  .navigation {
+  .hidden-section {
+    margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid var(--color-borders);
-    margin-top: 2rem;
+  }
+
+  .hidden-toggle {
+    background: none;
+    border: 1px solid var(--color-borders);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    width: 100%;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .hidden-toggle:hover {
+    background: var(--color-bg-light);
+    border-color: var(--color-text-light);
+  }
+
+  .hidden-examples {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-borders);
+    opacity: 0.7;
+  }
+
+  .navigation {
+    padding: 0.5rem 0;
   }
 
   /* Mobile responsive */
@@ -222,18 +267,8 @@
     }
 
     .figure-image {
-      max-width: 100%;
-    }
-
-    .section-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-
-    .submit-link {
-      align-self: stretch;
-      text-align: center;
+      max-width: 120px;
+      align-self: center;
     }
   }
 </style>

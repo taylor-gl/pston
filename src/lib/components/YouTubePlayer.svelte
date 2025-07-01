@@ -201,7 +201,6 @@
 
 <style>
   .youtube-player {
-    margin: 0.5rem 0;
     background: var(--color-bg-light);
     border: 1px solid var(--color-borders);
     border-radius: 4px;
@@ -230,10 +229,6 @@
   }
 
   @media (max-width: 768px) {
-    .youtube-player {
-      margin: 1rem 0;
-    }
-
     .player-container :global(iframe) {
       width: 100% !important;
       max-width: 360px;

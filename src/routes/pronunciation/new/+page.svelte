@@ -32,6 +32,7 @@
   let youtubeUrl = $state('');
   let startTimestamp = $state(0);
   let endTimestamp = $state(5);
+  let exampleDescription = $state('');
 
   onMount(async () => {
     try {
@@ -129,6 +130,11 @@
         start_timestamp: startTimestamp,
         end_timestamp: endTimestamp,
       };
+
+      // Add description if provided
+      if (exampleDescription.trim()) {
+        newExample.description = exampleDescription.trim();
+      }
 
       await createPronunciationExample(newExample);
       goto(`/person/${figureToUse.slug}`);
@@ -240,6 +246,17 @@
             placeholder="https://youtube.com/watch?v=... or video ID"
             required
           />
+        </div>
+
+        <div class="form-group description-field">
+          <label for="example-description">Description (optional)</label>
+          <input
+            type="text"
+            id="example-description"
+            bind:value={exampleDescription}
+            placeholder="e.g., from interview with Jimmy Fallon"
+          />
+          <p class="help-text">Add context about where this pronunciation clip is from</p>
         </div>
 
         <div class="timestamp-row">
@@ -354,6 +371,16 @@
   .form-group input:focus {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+  }
+
+  .help-text {
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+    margin: 0;
+  }
+
+  .description-field {
+    margin-top: 1.5rem;
   }
 
   .timestamp-row {
