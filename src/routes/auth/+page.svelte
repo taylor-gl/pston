@@ -24,7 +24,7 @@
   />
 </svelte:head>
 
-<div>
+<div class="auth-container">
   <h1>Welcome!</h1>
   <p>Please sign in to continue:</p>
 
@@ -33,3 +33,13 @@
     Sign in with Google
   </button>
 </div>
+
+<style>
+  .auth-container {
+    padding: 2rem 0;
+  }
+
+  .auth-container button {
+    margin-bottom: 2rem;
+  }
+</style>

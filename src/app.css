@@ -1,5 +1,79 @@
 @import 'modern-normalize';
 
+/*
+see https://github.com/substrate-system/css-normalize/blob/main/src/index.css for the CSS reset source
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  interpolate-size: allow-keywords;
+}
+
+* {
+  margin: 0;
+  /*
+        see https://kittygiraudel.com/2020/05/18/using-calc-to-figure-out-optimal-line-height/
+    */
+  line-height: calc(2px + 2ex + 2px);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+/*
+  see https://www.joshwcomeau.com/css/custom-css-reset/#nine-root-stacking-context-10
+  see https://www.joshwcomeau.com/css/stacking-contexts/
+*/
+#root {
+  isolation: isolate;
+}
+
+/* see https://gomakethings.com/how-to-animate-scrolling-to-anchor-links-with-one-line-of-css/#accessibility-concerns */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 :root {
   --color-bg: white;
   --color-text: #333;
@@ -17,7 +91,6 @@
 
 body {
   font-family: sans-serif;
-  line-height: 1.5;
   color: var(--color-text);
   background-color: var(--color-bg);
   margin: 0 1rem;
@@ -27,39 +100,34 @@ h1 {
   font-family: Georgia, Times, 'Source Serif Pro', serif;
   font-size: 2.25rem; /* 36px */
   font-weight: normal;
-  line-height: 1.2;
-  margin-bottom: 0;
+  margin-bottom: 1rem;
 }
 
 h2 {
   font-family: Georgia, Times, 'Source Serif Pro', serif;
   font-size: 1.875rem; /* 30px */
   font-weight: normal;
-  line-height: 1.3;
-  margin-bottom: 0;
+  margin-bottom: 0.75rem;
 }
 
 h3 {
   font-size: 1.5rem; /* 24px */
-  line-height: 1.4;
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
 }
 
 h4 {
   font-size: 1.25rem; /* 20px */
-  line-height: 1.4;
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
 }
 
 h5,
 h6 {
   font-size: 1.125rem; /* 18px */
-  line-height: 1.4;
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
 }
 
 p {
-  margin: 0.5rem 0;
+  margin-bottom: 1rem;
 }
 
 a {

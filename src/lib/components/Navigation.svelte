@@ -117,6 +117,7 @@
 
   .nav-header h1 {
     margin: 0;
+    flex-shrink: 0;
   }
 
   .nav-title {
@@ -133,9 +134,9 @@
 
   .nav-search {
     flex: 1;
-    max-width: 400px;
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   .nav-search.mobile-only {
@@ -146,6 +147,8 @@
     display: flex;
     gap: 1rem;
     align-items: center;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
   .mobile-menu-container {
@@ -221,7 +224,6 @@
       font-size: 1.25rem;
       flex: 1;
       min-width: 0;
-      line-height: 1.2;
       display: flex;
       align-items: center;
     }

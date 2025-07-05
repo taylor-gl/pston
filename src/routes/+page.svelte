@@ -55,8 +55,6 @@
     </div>
   </div>
 
-  <YouTubePlayer videoId="j8LqMv416mw" startTimestamp={0.0} stopTimestamp={2.1} />
-
   <div class="figures-section">
     <h2>Popular Public Figures</h2>
 
