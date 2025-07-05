@@ -147,8 +147,7 @@
     font-weight: 500;
   }
 
-  input[type='text'],
-  input[type='file'] {
+  input[type='text'] {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--color-borders);

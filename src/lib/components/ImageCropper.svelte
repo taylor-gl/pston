@@ -89,7 +89,6 @@
   function chooseDifferentFile() {
     reset();
     onFileChange(null);
-    // Reset file input
     if (fileInput) {
       fileInput.value = '';
     }

@@ -11,28 +11,34 @@
   } from '$lib/services/pronunciation-examples';
   import { getCurrentUser } from '$lib/services/auth';
   import { cropAndScaleImage, type CropPixels } from '$lib/utils/image';
+  import {
+    validateNewFigure,
+    validatePronunciationExample,
+    type NewFigureFormData,
+    type PronunciationExampleFormData,
+  } from '$lib/utils/form-validation';
   import FigureSelector from '$lib/components/FigureSelector.svelte';
   import ImageCropper from '$lib/components/ImageCropper.svelte';
+  import TimestampPicker from '$lib/components/TimestampPicker.svelte';
 
   let user: User | null = $state(null);
   let loading = $state(false);
   let error: string | null = $state(null);
 
-  // Public Figure Selection
   let selectedFigure: PublicFigure | null = $state(null);
   let figureMode: 'existing' | 'new' = $state('existing');
 
-  // New Public Figure Form
   let newFigureName = $state('');
   let newFigureDescription = $state('');
   let newFigureImageFile: File | null = $state(null);
   let croppedAreaPixels: CropPixels | null = $state(null);
 
-  // Pronunciation Example Form
   let youtubeUrl = $state('');
   let startTimestamp = $state(0);
   let endTimestamp = $state(5);
   let exampleDescription = $state('');
+
+  let videoId = $derived(youtubeUrl ? extractYouTubeVideoId(youtubeUrl) : null);
 
   onMount(async () => {
     try {
@@ -41,8 +47,6 @@
         goto('/auth?redirect=' + encodeURIComponent($page.url.pathname + $page.url.search));
         return;
       }
-
-      // Check if a specific figure was requested via URL parameter
       const figureSlug = $page.url.searchParams.get('figure');
       if (figureSlug) {
         const figure = await getPublicFigureBySlug(figureSlug);
@@ -67,30 +71,37 @@
   }
 
   async function handleSubmit() {
-    if (!user) {
-      error = 'You must be signed in to submit pronunciation examples';
-      return;
-    }
-
     error = null;
     loading = true;
 
     try {
+      if (!user) {
+        error = 'You must be signed in to submit pronunciation examples';
+        return;
+      }
+
+      if (figureMode === 'existing' && !selectedFigure) {
+        error = 'Please select a public figure';
+        return;
+      }
+
       let figureToUse = selectedFigure;
 
-      // Create new public figure if needed
       if (figureMode === 'new') {
-        if (!newFigureName.trim() || !newFigureDescription.trim() || !newFigureImageFile) {
-          error = 'Name, description, and photo are required for new public figures';
+        const newFigureData: NewFigureFormData = {
+          name: newFigureName,
+          description: newFigureDescription,
+          imageFile: newFigureImageFile,
+          croppedAreaPixels,
+        };
+
+        const newFigureError = validateNewFigure(newFigureData);
+        if (newFigureError) {
+          error = newFigureError;
           return;
         }
 
-        if (!croppedAreaPixels) {
-          error = 'Please crop the image first';
-          return;
-        }
-
-        const processedImageFile = await cropAndScaleImage(newFigureImageFile, croppedAreaPixels);
+        const processedImageFile = await cropAndScaleImage(newFigureImageFile!, croppedAreaPixels!);
 
         const newFigure: NewPublicFigure = {
           name: newFigureName.trim(),
@@ -101,43 +112,33 @@
         figureToUse = await createPublicFigure(newFigure);
       }
 
-      if (!figureToUse) {
-        error = 'Please select or create a public figure';
+      const exampleData: PronunciationExampleFormData = {
+        youtubeUrl,
+        startTimestamp,
+        endTimestamp,
+        description: exampleDescription,
+      };
+
+      const exampleError = validatePronunciationExample(exampleData);
+      if (exampleError) {
+        error = exampleError;
         return;
       }
 
-      // Validate pronunciation example data
-      const videoId = extractYouTubeVideoId(youtubeUrl);
-      if (!videoId) {
-        error = 'Please enter a valid YouTube URL or video ID';
-        return;
-      }
-
-      if (startTimestamp >= endTimestamp) {
-        error = 'End timestamp must be greater than start timestamp';
-        return;
-      }
-
-      if (startTimestamp < 0 || endTimestamp < 0) {
-        error = 'Timestamps must be positive numbers';
-        return;
-      }
-
-      // Create pronunciation example
+      const videoId = extractYouTubeVideoId(youtubeUrl)!;
       const newExample: NewPronunciationExample = {
-        public_figure_id: figureToUse.id,
+        public_figure_id: figureToUse!.id,
         youtube_video_id: videoId,
         start_timestamp: startTimestamp,
         end_timestamp: endTimestamp,
       };
 
-      // Add description if provided
       if (exampleDescription.trim()) {
         newExample.description = exampleDescription.trim();
       }
 
       await createPronunciationExample(newExample);
-      goto(`/person/${figureToUse.slug}`);
+      goto(`/person/${figureToUse!.slug}`);
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to submit pronunciation example';
     } finally {
@@ -146,11 +147,9 @@
   }
 
   function handleCancel() {
-    // Try to go back to the previous page
     if (typeof window !== 'undefined' && window.history.length > 1) {
       window.history.back();
     } else {
-      // Fallback to home page if no history
       goto('/');
     }
   }
@@ -248,6 +247,12 @@
           />
         </div>
 
+        {#if videoId}
+          <div class="timestamp-picker-container">
+            <TimestampPicker {videoId} bind:startTimestamp bind:endTimestamp />
+          </div>
+        {/if}
+
         <div class="form-group description-field">
           <label for="example-description">Description (optional)</label>
           <input
@@ -257,32 +262,6 @@
             placeholder="e.g., from interview with Jimmy Fallon"
           />
           <p class="help-text">Add context about where this pronunciation clip is from</p>
-        </div>
-
-        <div class="timestamp-row">
-          <div class="form-group">
-            <label for="start-time">Start Time (seconds)</label>
-            <input
-              type="number"
-              id="start-time"
-              bind:value={startTimestamp}
-              step="0.1"
-              min="0"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="end-time">End Time (seconds)</label>
-            <input
-              type="number"
-              id="end-time"
-              bind:value={endTimestamp}
-              step="0.1"
-              min="0"
-              required
-            />
-          </div>
         </div>
       </fieldset>
 
@@ -383,11 +362,8 @@
     margin-top: 1.5rem;
   }
 
-  .timestamp-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 1rem;
+  .timestamp-picker-container {
+    margin-top: 1.5rem;
   }
 
   .form-actions {
@@ -401,10 +377,6 @@
     .radio-group {
       flex-direction: column;
       gap: 1rem;
-    }
-
-    .timestamp-row {
-      grid-template-columns: 1fr;
     }
 
     .form-actions {

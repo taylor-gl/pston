@@ -80,7 +80,6 @@ a:hover {
   text-decoration: none;
 }
 
-/* Button that looks like a link */
 .link-button {
   background: none;
   border: none;
@@ -97,7 +96,6 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Primary button styles */
 .btn-primary {
   background: var(--color-link);
   color: white;
@@ -122,7 +120,6 @@ a:hover {
   cursor: not-allowed;
 }
 
-/* Secondary button styles */
 .btn-secondary {
   background: var(--color-bg-light);
   color: var(--color-text);
@@ -141,20 +138,17 @@ a:hover {
   text-decoration: none;
 }
 
-/* Small button variant */
 .btn-sm {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
 }
 
-/* Button with icon variant */
 .btn-icon {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Utility classes */
 .help-text {
   font-size: 0.85rem;
   color: var(--color-borders);

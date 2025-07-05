@@ -40,12 +40,10 @@
       voteError = null;
 
       if (userVote?.vote_type === 'upvote') {
-        // Remove upvote
         await removePronunciationExampleVote(example.id);
         example.upvotes--;
         example.user_vote = null;
       } else {
-        // Add or change to upvote
         if (userVote?.vote_type === 'downvote') {
           example.downvotes--;
         }
@@ -74,12 +72,10 @@
       voteError = null;
 
       if (userVote?.vote_type === 'downvote') {
-        // Remove downvote
         await removePronunciationExampleVote(example.id);
         example.downvotes--;
         example.user_vote = null;
       } else {
-        // Add or change to downvote
         if (userVote?.vote_type === 'upvote') {
           example.upvotes--;
         }

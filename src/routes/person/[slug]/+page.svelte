@@ -202,10 +202,6 @@
     padding: 0.5rem 0;
   }
 
-  .submit-link:hover {
-    text-decoration: underline;
-  }
-
   .no-examples {
     text-align: center;
     padding: 2rem;

@@ -48,7 +48,6 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
     throw new Error(`Failed to generate slug: ${slugError.message}`);
   }
 
-  // Upload image (required)
   const fileExt = figure.image.name.split('.').pop();
   const fileName = `${slug}-${Date.now()}.${fileExt}`;
 
@@ -69,10 +68,8 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
     throw new Error(`Failed to upload image: ${uploadError.message}`);
   }
 
-  // Store only the filename in the database
   const image_filename = uploadData.path;
 
-  // Insert the public figure record
   const { data, error } = await supabase
     .from('public_figures')
     .insert([
@@ -87,10 +84,8 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
     .single();
 
   if (error) {
-    // If we failed to create the database record, clean up the uploaded image
     await supabase.storage.from('public-figure-images').remove([fileName]);
 
-    // Provide human-readable error messages for common database issues
     if (error.code === '23505') {
       throw new Error(
         `A public figure with a similar name already exists. Please choose a different name.`
