@@ -25,26 +25,56 @@ export async function getPronunciationExamplesByFigureId(
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data, error } = await supabase
+  const { count: totalCount, error: countError } = await supabase
+    .from('pronunciation_examples')
+    .select('*', { count: 'exact', head: true })
+    .eq('public_figure_id', figureId)
+    .gte('wilson_score', MIN_WILSON_SCORE_THRESHOLD);
+
+  if (countError) {
+    throw new Error(`Failed to fetch pronunciation examples count: ${countError.message}`);
+  }
+
+  const { data: visibleData, error: visibleError } = await supabase
     .from('pronunciation_examples')
     .select('*, public_figure:public_figures(*)')
     .eq('public_figure_id', figureId)
+    .gte('wilson_score', MIN_WILSON_SCORE_THRESHOLD)
     .order('wilson_score', { ascending: false })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + EXAMPLES_PER_PAGE - 1);
 
-  if (error) {
-    if (error.code === '42501' || error.code === 'PGRST301') {
+  if (visibleError) {
+    if (visibleError.code === '42501' || visibleError.code === 'PGRST301') {
       throw new Error(
         `Unable to load pronunciation examples. Please refresh the page and try again.`
       );
     }
-    throw new Error(`Failed to fetch pronunciation examples: ${error.message}`);
+    throw new Error(`Failed to fetch pronunciation examples: ${visibleError.message}`);
   }
 
-  let allExamples = data || [];
+  let visibleExamples = visibleData || [];
 
-  if (user && allExamples.length > 0) {
-    const exampleIds = allExamples.map((ex) => ex.id);
+  let hiddenExamples: PronunciationExample[] = [];
+  let hiddenCount = 0;
+
+  if (page === 1) {
+    const { data: hiddenData, error: hiddenError } = await supabase
+      .from('pronunciation_examples')
+      .select('*, public_figure:public_figures(*)')
+      .eq('public_figure_id', figureId)
+      .lt('wilson_score', MIN_WILSON_SCORE_THRESHOLD)
+      .order('wilson_score', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (!hiddenError) {
+      hiddenExamples = hiddenData || [];
+      hiddenCount = hiddenExamples.length;
+    }
+  }
+
+  if (user && visibleExamples.length > 0) {
+    const exampleIds = visibleExamples.map((ex) => ex.id);
     const { data: userVotes, error: votesError } = await supabase
       .from('pronunciation_example_votes')
       .select('*')
@@ -60,25 +90,45 @@ export async function getPronunciationExamplesByFigureId(
         {} as Record<string, PronunciationExampleVote>
       );
 
-      allExamples = allExamples.map((example) => ({
+      visibleExamples = visibleExamples.map((example) => ({
         ...example,
         user_vote: votesByExampleId[example.id] || null,
       }));
     }
   }
 
-  const visibleExamples = allExamples.filter((ex) => ex.wilson_score >= MIN_WILSON_SCORE_THRESHOLD);
-  const hiddenExamples = allExamples.filter((ex) => ex.wilson_score < MIN_WILSON_SCORE_THRESHOLD);
+  if (user && hiddenExamples.length > 0) {
+    const hiddenExampleIds = hiddenExamples.map((ex) => ex.id);
+    const { data: hiddenUserVotes, error: hiddenVotesError } = await supabase
+      .from('pronunciation_example_votes')
+      .select('*')
+      .in('pronunciation_example_id', hiddenExampleIds)
+      .eq('user_id', user.id);
 
-  const paginatedVisible = visibleExamples.slice(offset, offset + EXAMPLES_PER_PAGE);
-  const hasMore = offset + EXAMPLES_PER_PAGE < visibleExamples.length;
+    if (!hiddenVotesError && hiddenUserVotes) {
+      const hiddenVotesByExampleId = hiddenUserVotes.reduce(
+        (acc, vote) => {
+          acc[vote.pronunciation_example_id] = vote;
+          return acc;
+        },
+        {} as Record<string, PronunciationExampleVote>
+      );
+
+      hiddenExamples = hiddenExamples.map((example) => ({
+        ...example,
+        user_vote: hiddenVotesByExampleId[example.id] || null,
+      }));
+    }
+  }
+
+  const hasMore = offset + EXAMPLES_PER_PAGE < (totalCount || 0);
 
   return {
-    examples: paginatedVisible,
+    examples: visibleExamples,
     hiddenExamples,
     hasMore,
-    total: visibleExamples.length,
-    hiddenCount: hiddenExamples.length,
+    total: totalCount || 0,
+    hiddenCount,
   };
 }
 

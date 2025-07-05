@@ -47,8 +47,14 @@
   }
 
   async function loadNextPage() {
-    currentPage += 1;
-    await loadExamples();
+    try {
+      currentPage += 1;
+      const result = await getPronunciationExamplesByFigureId(publicFigure.id, currentPage);
+      examples = [...examples, ...result.examples];
+      hasMoreExamples = result.hasMore;
+    } catch (err) {
+      examplesError = err instanceof Error ? err.message : 'Failed to load more examples';
+    }
   }
 
   function toggleHidden() {
