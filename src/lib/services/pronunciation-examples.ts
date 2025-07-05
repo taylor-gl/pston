@@ -282,6 +282,17 @@ export async function getUserVoteForExample(
   return data;
 }
 
+export async function deletePronunciationExample(exampleId: string): Promise<void> {
+  const { error } = await supabase.from('pronunciation_examples').delete().eq('id', exampleId);
+
+  if (error) {
+    if (error.code === '42501' || error.code === 'PGRST301') {
+      throw new Error('You do not have permission to delete pronunciation examples.');
+    }
+    throw new Error(`Failed to delete pronunciation example: ${error.message}`);
+  }
+}
+
 export function extractYouTubeVideoId(url: string): string | null {
   if (!url) return null;
 

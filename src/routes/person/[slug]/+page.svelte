@@ -27,6 +27,23 @@
     });
 
     loadExamples();
+
+    const handleExampleDeleted = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const deletedId = customEvent.detail.exampleId;
+      examples = examples.filter(ex => ex.id !== deletedId);
+      hiddenExamples = hiddenExamples.filter(ex => ex.id !== deletedId);
+      totalExamples = totalExamples - 1;
+      if (hiddenExamples.length === 0) {
+        showHidden = false;
+      }
+    };
+    
+    document.addEventListener('example-deleted', handleExampleDeleted);
+    
+    return () => {
+      document.removeEventListener('example-deleted', handleExampleDeleted);
+    };
   });
 
   async function loadExamples() {

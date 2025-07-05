@@ -3,8 +3,9 @@
   import {
     votePronunciationExample,
     removePronunciationExampleVote,
+    deletePronunciationExample,
   } from '$lib/services/pronunciation-examples';
-  import { getCurrentUser } from '$lib/services/auth';
+  import { getCurrentUser, hasPermission } from '$lib/services/auth';
   import YouTubePlayer from './YouTubePlayer.svelte';
   import Icon from '@iconify/svelte';
   import { onMount } from 'svelte';
@@ -15,6 +16,9 @@
   let user: User | null = $state(null);
   let votingInProgress = $state(false);
   let voteError: string | null = $state(null);
+  let canDelete = $state(false);
+  let deleteInProgress = $state(false);
+  let deleteError: string | null = $state(null);
   let upvotes = $derived(example.upvotes);
   let downvotes = $derived(example.downvotes);
   let userVote = $derived(example.user_vote);
@@ -30,6 +34,9 @@
 
   onMount(async () => {
     user = await getCurrentUser();
+    if (user) {
+      canDelete = await hasPermission('can_delete_pronunciation_examples');
+    }
   });
 
   async function handleUpvote() {
@@ -95,6 +102,31 @@
       votingInProgress = false;
     }
   }
+
+  async function handleDelete() {
+    if (!user || !canDelete || deleteInProgress) return;
+
+    try {
+      deleteInProgress = true;
+      deleteError = null;
+
+      await deletePronunciationExample(example.id);
+
+      const event = new CustomEvent('example-deleted', {
+        detail: { exampleId: example.id },
+        bubbles: true
+      });
+
+      if (typeof document !== 'undefined') {
+        document.dispatchEvent(event);
+      }
+    } catch (err) {
+      deleteError = err instanceof Error ? err.message : 'Failed to delete pronunciation example';
+      console.error('Delete error:', err);
+    } finally {
+      deleteInProgress = false;
+    }
+  }
 </script>
 
 <article class="pronunciation-example">
@@ -130,6 +162,17 @@
     >
       <Icon icon="material-symbols:keyboard-arrow-down" width="20" height="20" />
     </button>
+    
+    {#if canDelete}
+      <button
+        class="delete-btn"
+        onclick={handleDelete}
+        disabled={deleteInProgress}
+        title="Delete this pronunciation example"
+      >
+        <Icon icon="material-symbols:delete" width="20" height="20" />
+      </button>
+    {/if}
   </div>
 
   <div class="example-meta">
@@ -143,6 +186,10 @@
 
     {#if voteError}
       <p class="vote-error">{voteError}</p>
+    {/if}
+
+    {#if deleteError}
+      <p class="delete-error">{deleteError}</p>
     {/if}
   </div>
 </article>
@@ -224,6 +271,32 @@
     color: var(--color-warning);
   }
 
+  .delete-btn {
+    background: none;
+    border: none;
+    border-radius: 2px;
+    padding: 0.125rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    transition: all 0.2s ease;
+    color: var(--color-error, #dc2626);
+    margin-top: 0.5rem;
+  }
+
+  .delete-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .delete-btn:hover:not(:disabled) {
+    background: var(--color-error-light, rgba(220, 38, 38, 0.1));
+    color: var(--color-error-dark, #b91c1c);
+  }
+
   .example-meta {
     flex: 1;
     margin-top: 0;
@@ -251,6 +324,14 @@
     margin: 0;
   }
 
+  .delete-error {
+    color: var(--color-error);
+    font-size: 0.75rem;
+    margin: 0;
+  }
+
+
+
   /* Mobile responsive */
   @media (max-width: 768px) {
     .pronunciation-example {
@@ -263,6 +344,11 @@
       justify-content: center;
       width: auto;
       margin-top: 0;
+    }
+
+    .delete-btn {
+      margin-top: 0;
+      margin-left: 0.5rem;
     }
 
     .example-meta {
