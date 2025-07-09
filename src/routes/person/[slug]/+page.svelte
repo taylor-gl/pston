@@ -2,9 +2,11 @@
   import { onMount } from 'svelte';
   import type { PublicFigure, PronunciationExample } from '$lib/types';
   import type { User } from '@supabase/supabase-js';
-  import { getImageUrl } from '$lib/services/public-figures';
+  import { getImageUrl, deletePublicFigure } from '$lib/services/public-figures';
   import { getPronunciationExamplesByFigureId } from '$lib/services/pronunciation-examples';
-  import { getCurrentUser } from '$lib/services/auth';
+  import { getCurrentUser, hasPermission } from '$lib/services/auth';
+  import DeleteButton from '$lib/components/DeleteButton.svelte';
+  import { goto } from '$app/navigation';
   import PronunciationExampleItem from '$lib/components/PronunciationExampleItem.svelte';
 
   let { data }: { data: { publicFigure: PublicFigure } } = $props();
@@ -20,31 +22,38 @@
   let examplesError: string | null = $state(null);
   let user: User | null = $state(null);
   let showHidden = $state(false);
+  let canDeleteFigure = $state(false);
+  let deleteInProgress = $state(false);
+  let deleteError: string | null = $state(null);
 
   onMount(() => {
-    getCurrentUser().then((currentUser) => {
-      user = currentUser;
-    });
-
+    loadUserAndPermissions();
     loadExamples();
 
     const handleExampleDeleted = (event: Event) => {
       const customEvent = event as CustomEvent;
       const deletedId = customEvent.detail.exampleId;
-      examples = examples.filter(ex => ex.id !== deletedId);
-      hiddenExamples = hiddenExamples.filter(ex => ex.id !== deletedId);
+      examples = examples.filter((ex) => ex.id !== deletedId);
+      hiddenExamples = hiddenExamples.filter((ex) => ex.id !== deletedId);
       totalExamples = totalExamples - 1;
       if (hiddenExamples.length === 0) {
         showHidden = false;
       }
     };
-    
+
     document.addEventListener('example-deleted', handleExampleDeleted);
-    
+
     return () => {
       document.removeEventListener('example-deleted', handleExampleDeleted);
     };
   });
+
+  async function loadUserAndPermissions() {
+    user = await getCurrentUser();
+    if (user) {
+      canDeleteFigure = await hasPermission('can_delete_public_figures');
+    }
+  }
 
   async function loadExamples() {
     try {
@@ -77,6 +86,21 @@
   function toggleHidden() {
     showHidden = !showHidden;
   }
+
+  async function handleDeleteFigure() {
+    try {
+      deleteInProgress = true;
+      deleteError = null;
+      await deletePublicFigure(publicFigure.id);
+
+      // Navigate back to the home page or figures list
+      goto('/');
+    } catch (err) {
+      deleteError = err instanceof Error ? err.message : 'Failed to delete public figure';
+    } finally {
+      deleteInProgress = false;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -85,9 +109,25 @@
 </svelte:head>
 
 <div class="page-content">
-  <article class="figure-article">
+  <div class="figure-header">
     <h1>{publicFigure.name}</h1>
 
+    {#if canDeleteFigure}
+      <div class="admin-controls">
+        <DeleteButton
+          onclick={handleDeleteFigure}
+          disabled={deleteInProgress}
+          title="Delete this public figure"
+        />
+      </div>
+    {/if}
+  </div>
+
+  {#if deleteError}
+    <div class="error-message">{deleteError}</div>
+  {/if}
+
+  <article class="figure-article">
     <div class="figure-info">
       {#if publicFigure.image_filename}
         <div class="figure-image">
@@ -103,76 +143,75 @@
         <p><strong>{publicFigure.name}</strong> is a {publicFigure.description}.</p>
       </div>
     </div>
-
-    <section class="pronunciation-section">
-      {#if loadingExamples}
-        <p>Loading pronunciation examples...</p>
-      {:else if examplesError}
-        <p class="error-message">Error: {examplesError}</p>
-      {:else if examples.length === 0 && hiddenCount === 0}
-        <div class="no-examples">
-          <p>No pronunciation examples yet for {publicFigure.name}.</p>
-          {#if user}
-            <p>
-              <a href="/pronunciation/new?figure={publicFigure.slug}">Be the first to submit one!</a
-              >
-            </p>
-          {:else}
-            <p>
-              <a href="/auth?redirect=/pronunciation/new?figure={publicFigure.slug}"
-                >Sign in to submit the first one!</a
-              >
-            </p>
-          {/if}
-        </div>
-      {:else}
-        <div class="section-header">
-          {#if user}
-            <a href="/pronunciation/new?figure={publicFigure.slug}"> Submit a new pronunciation </a>
-          {:else}
-            <a href="/auth?redirect=/pronunciation/new?figure={publicFigure.slug}">
-              Sign in to submit a pronunciation
-            </a>
-          {/if}
-        </div>
-        <div class="examples-list">
-          {#each examples as example (example.id)}
-            <PronunciationExampleItem {example} />
-          {/each}
-        </div>
-
-        {#if hasMoreExamples}
-          <div class="pagination">
-            <button onclick={loadNextPage} class="btn-secondary"> Load more examples </button>
-          </div>
-        {/if}
-
-        {#if hiddenCount > 0}
-          <div class="hidden-section">
-            <button onclick={toggleHidden} class="hidden-toggle">
-              {#if showHidden}
-                Hide {hiddenCount} downvoted example{hiddenCount === 1 ? '' : 's'}
-              {:else}
-                Show {hiddenCount} downvoted example{hiddenCount === 1 ? '' : 's'} (click to expand)
-              {/if}
-            </button>
-
-            {#if showHidden}
-              <div class="hidden-examples">
-                {#each hiddenExamples as example (example.id)}
-                  <PronunciationExampleItem {example} />
-                {/each}
-              </div>
-            {/if}
-          </div>
-        {/if}
-      {/if}
-    </section>
-
-    <div class="navigation">
-      <a href="/" class="back-link">← Back to all public figures</a>
-    </div>
   </article>
+
+  <section class="pronunciation-section">
+    {#if loadingExamples}
+      <p>Loading pronunciation examples...</p>
+    {:else if examplesError}
+      <p class="error-message">Error: {examplesError}</p>
+    {:else if examples.length === 0 && hiddenCount === 0}
+      <div class="no-examples">
+        <p>No pronunciation examples yet for {publicFigure.name}.</p>
+        {#if user}
+          <p>
+            <a href="/pronunciation/new?figure={publicFigure.slug}">Be the first to submit one!</a>
+          </p>
+        {:else}
+          <p>
+            <a href="/auth?redirect=/pronunciation/new?figure={publicFigure.slug}"
+              >Sign in to submit the first one!</a
+            >
+          </p>
+        {/if}
+      </div>
+    {:else}
+      <div class="section-header">
+        {#if user}
+          <a href="/pronunciation/new?figure={publicFigure.slug}"> Submit a new pronunciation </a>
+        {:else}
+          <a href="/auth?redirect=/pronunciation/new?figure={publicFigure.slug}">
+            Sign in to submit a pronunciation
+          </a>
+        {/if}
+      </div>
+      <div class="examples-list">
+        {#each examples as example (example.id)}
+          <PronunciationExampleItem {example} />
+        {/each}
+      </div>
+
+      {#if hasMoreExamples}
+        <div class="pagination">
+          <button onclick={loadNextPage} class="btn-secondary"> Load more examples </button>
+        </div>
+      {/if}
+
+      {#if hiddenCount > 0}
+        <div class="hidden-section">
+          <button onclick={toggleHidden} class="hidden-toggle">
+            {#if showHidden}
+              Hide {hiddenCount} downvoted example{hiddenCount === 1 ? '' : 's'}
+            {:else}
+              Show {hiddenCount} downvoted example{hiddenCount === 1 ? '' : 's'} (click to expand)
+            {/if}
+          </button>
+
+          {#if showHidden}
+            <div class="hidden-examples">
+              {#each hiddenExamples as example (example.id)}
+                <PronunciationExampleItem {example} />
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
+    {/if}
+  </section>
+
+  <div class="navigation">
+    <a href="/" class="back-link">← Back to all public figures</a>
+  </div>
 </div>
 
 <style>
@@ -182,13 +221,35 @@
     padding-top: 2rem;
   }
 
+  .figure-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-borders);
+    padding-bottom: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
   .figure-article {
     max-width: 50rem;
   }
 
-  .figure-article h1 {
-    border-bottom: 1px solid var(--color-borders);
-    padding-bottom: 0.25rem;
+  .figure-header h1 {
+    margin: 0;
+  }
+
+  .admin-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .error-message {
+    color: var(--color-error);
+    background-color: var(--color-error-light, rgba(220, 38, 38, 0.1));
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+    max-width: 50rem;
   }
 
   .figure-info {

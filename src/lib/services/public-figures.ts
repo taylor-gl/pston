@@ -154,3 +154,42 @@ export async function searchPublicFigures(
 export async function getSearchSuggestions(query: string): Promise<PublicFigure[]> {
   return searchPublicFigures(query, 5);
 }
+
+export async function deletePublicFigure(figureId: string): Promise<void> {
+  // First, get the figure to access the image filename
+  const { data: figure, error: fetchError } = await supabase
+    .from('public_figures')
+    .select('image_filename')
+    .eq('id', figureId)
+    .single();
+
+  if (fetchError) {
+    if (fetchError.code === 'PGRST116') {
+      throw new Error('Public figure not found');
+    }
+    throw new Error(`Failed to fetch public figure: ${fetchError.message}`);
+  }
+
+  // Delete the public figure record
+  const { error: deleteError } = await supabase.from('public_figures').delete().eq('id', figureId);
+
+  if (deleteError) {
+    if (deleteError.code === '42501') {
+      throw new Error("You don't have permission to delete public figures");
+    }
+    throw new Error(`Failed to delete public figure: ${deleteError.message}`);
+  }
+
+  // Delete the associated image from storage if it exists
+  if (figure.image_filename) {
+    const { error: storageError } = await supabase.storage
+      .from('public-figure-images')
+      .remove([figure.image_filename]);
+
+    // We don't throw an error if storage deletion fails
+    // as the main record has already been deleted
+    if (storageError) {
+      console.warn('Failed to delete image from storage:', storageError.message);
+    }
+  }
+}

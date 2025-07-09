@@ -7,6 +7,7 @@
   } from '$lib/services/pronunciation-examples';
   import { getCurrentUser, hasPermission } from '$lib/services/auth';
   import YouTubePlayer from './YouTubePlayer.svelte';
+  import DeleteButton from './DeleteButton.svelte';
   import Icon from '@iconify/svelte';
   import { onMount } from 'svelte';
   import type { User } from '@supabase/supabase-js';
@@ -114,7 +115,7 @@
 
       const event = new CustomEvent('example-deleted', {
         detail: { exampleId: example.id },
-        bubbles: true
+        bubbles: true,
       });
 
       if (typeof document !== 'undefined') {
@@ -162,16 +163,13 @@
     >
       <Icon icon="material-symbols:keyboard-arrow-down" width="20" height="20" />
     </button>
-    
+
     {#if canDelete}
-      <button
-        class="delete-btn"
+      <DeleteButton
         onclick={handleDelete}
         disabled={deleteInProgress}
         title="Delete this pronunciation example"
-      >
-        <Icon icon="material-symbols:delete" width="20" height="20" />
-      </button>
+      />
     {/if}
   </div>
 
@@ -271,32 +269,6 @@
     color: var(--color-warning);
   }
 
-  .delete-btn {
-    background: none;
-    border: none;
-    border-radius: 2px;
-    padding: 0.125rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    transition: all 0.2s ease;
-    color: var(--color-error, #dc2626);
-    margin-top: 0.5rem;
-  }
-
-  .delete-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  .delete-btn:hover:not(:disabled) {
-    background: var(--color-error-light, rgba(220, 38, 38, 0.1));
-    color: var(--color-error-dark, #b91c1c);
-  }
-
   .example-meta {
     flex: 1;
     margin-top: 0;
@@ -330,8 +302,6 @@
     margin: 0;
   }
 
-
-
   /* Mobile responsive */
   @media (max-width: 768px) {
     .pronunciation-example {
@@ -344,11 +314,6 @@
       justify-content: center;
       width: auto;
       margin-top: 0;
-    }
-
-    .delete-btn {
-      margin-top: 0;
-      margin-left: 0.5rem;
     }
 
     .example-meta {
