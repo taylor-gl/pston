@@ -56,14 +56,14 @@
   </div>
 
   <div class="figures-section">
-    <h2>Popular Public Figures</h2>
+    <h2 class="section-header">Popular Public Figures</h2>
 
     {#if loading}
       <p>Loading...</p>
     {:else if error}
       <p class="error-message">Error: {error}</p>
     {:else if publicFigures.length === 0}
-      <p>
+      <p class="add-figure-container">
         No public figures yet.
         {#if user}
           <a href="/person/new">Add the first one!</a>
@@ -72,13 +72,13 @@
         {/if}
       </p>
     {:else}
-      <div class="add-figure-container">
+      <p class="add-figure-container">
         {#if user}
           <a href="/pronunciation/new" class="create-link">Add a new pronunciation example</a>
         {:else}
           <a href="/auth" class="create-link">Sign in to add a new pronunciation example</a>
         {/if}
-      </div>
+      </p>
       <ul class="figures-list">
         {#each publicFigures as figure (figure.id)}
           <PublicFigureListItem {figure} />
@@ -89,6 +89,15 @@
 </div>
 
 <style>
+  .add-figure-container {
+    padding: 1rem 0;
+    margin: 0;
+  }
+
+  .section-header {
+    margin-bottom: 0;
+  }
+
   .header {
     display: flex;
     align-items: center;
@@ -126,6 +135,10 @@
 
   .create-link {
     font-weight: 500;
+  }
+
+  .figures-section {
+    margin: 1rem 0;
   }
 
   .figures-section h2 {

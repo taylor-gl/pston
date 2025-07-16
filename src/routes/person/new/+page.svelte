@@ -67,7 +67,7 @@
 
 <div class="page-content">
   <div class="form-container">
-    <h2>Add New Public Figure</h2>
+    <h2 class="section-header">Add New Public Figure</h2>
 
     <form
       onsubmit={(e) => {
@@ -127,6 +127,10 @@
     margin: 0 auto;
   }
 
+  .section-header {
+    padding-top: 1rem;
+  }
+
   .form-container {
     max-width: 40rem;
   }
@@ -164,5 +168,6 @@
   .form-actions {
     display: flex;
     gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 </style>

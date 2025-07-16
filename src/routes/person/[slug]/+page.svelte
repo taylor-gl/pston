@@ -140,6 +140,15 @@
       {/if}
 
       <div class="figure-description">
+        <p class="submission-info">
+          Submitted by {publicFigure.creator_profile?.full_name || 'Anonymous User'} on {new Date(
+            publicFigure.created_at
+          ).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </p>
         <p><strong>{publicFigure.name}</strong> is a {publicFigure.description}.</p>
       </div>
     </div>
@@ -232,6 +241,8 @@
 
   .figure-article {
     max-width: 50rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
   }
 
   .figure-header h1 {
@@ -272,28 +283,28 @@
   }
 
   .figure-description {
-    flex: 1;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .pronunciation-section {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
     border-top: 1px solid var(--color-borders);
   }
 
+  .submission-info {
+    color: var(--color-text-light);
+    font-size: 0.75rem;
+    margin: 0;
+  }
+
   .section-header {
-    padding: 0.5rem 0;
+    padding: 1rem 0;
   }
 
   .no-examples {
     text-align: center;
     padding: 2rem;
-    color: var(--color-borders);
-    background: var(--color-bg-light);
-    border-radius: 4px;
-    border: 1px solid var(--color-borders);
   }
 
   .no-examples p {
@@ -337,19 +348,6 @@
   }
 
   .navigation {
-    padding: 0.5rem 0;
-  }
-
-  /* Mobile responsive */
-  @media (max-width: 768px) {
-    .figure-info {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .figure-image {
-      max-width: 120px;
-      align-self: center;
-    }
+    padding: 1rem 0;
   }
 </style>

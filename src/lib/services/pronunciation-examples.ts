@@ -37,7 +37,19 @@ export async function getPronunciationExamplesByFigureId(
 
   const { data: visibleData, error: visibleError } = await supabase
     .from('pronunciation_examples')
-    .select('*, public_figure:public_figures(*)')
+    .select(
+      `
+      *, 
+      public_figure:public_figures(*),
+      creator_profile:profiles!created_by_profile_id (
+        id,
+        full_name,
+        avatar_url,
+        created_at,
+        updated_at
+      )
+    `
+    )
     .eq('public_figure_id', figureId)
     .gte('wilson_score', MIN_WILSON_SCORE_THRESHOLD)
     .order('wilson_score', { ascending: false })
@@ -61,7 +73,20 @@ export async function getPronunciationExamplesByFigureId(
   if (page === 1) {
     const { data: hiddenData, error: hiddenError } = await supabase
       .from('pronunciation_examples')
-      .select('*, public_figure:public_figures(*)')
+      .select(
+        `
+        *, 
+        public_figure:public_figures(*),
+        creator_profile:profiles!created_by (
+          id,
+          display_name,
+          full_name,
+          avatar_url,
+          created_at,
+          updated_at
+        )
+      `
+      )
       .eq('public_figure_id', figureId)
       .lt('wilson_score', MIN_WILSON_SCORE_THRESHOLD)
       .order('wilson_score', { ascending: false })

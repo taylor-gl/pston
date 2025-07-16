@@ -1,3 +1,11 @@
+export interface PublicProfile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface PublicFigure {
   id: string;
   name: string;
@@ -7,6 +15,7 @@ export interface PublicFigure {
   created_at: string;
   updated_at: string;
   created_by: string | null;
+  creator_profile?: PublicProfile | null;
 }
 
 export interface NewPublicFigure {
@@ -30,6 +39,7 @@ export interface PronunciationExample {
   created_by: string | null;
   public_figure?: PublicFigure;
   user_vote?: PronunciationExampleVote | null;
+  creator_profile?: PublicProfile | null;
 }
 
 export interface NewPronunciationExample {

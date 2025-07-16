@@ -5,7 +5,18 @@ import { dev } from '$app/environment';
 export async function getAllPublicFigures(): Promise<PublicFigure[]> {
   const { data, error } = await supabase
     .from('public_figures')
-    .select('*')
+    .select(
+      `
+      *,
+      creator_profile:profiles!created_by_profile_id (
+        id,
+        full_name,
+        avatar_url,
+        created_at,
+        updated_at
+      )
+    `
+    )
     .order('name', { ascending: true });
 
   if (error) {
@@ -21,7 +32,18 @@ export async function getAllPublicFigures(): Promise<PublicFigure[]> {
 export async function getPublicFigureBySlug(slug: string): Promise<PublicFigure | null> {
   const { data, error } = await supabase
     .from('public_figures')
-    .select('*')
+    .select(
+      `
+      *,
+      creator_profile:profiles!created_by_profile_id (
+        id,
+        full_name,
+        avatar_url,
+        created_at,
+        updated_at
+      )
+    `
+    )
     .eq('slug', slug)
     .single();
 

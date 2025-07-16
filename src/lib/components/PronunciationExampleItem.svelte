@@ -174,13 +174,13 @@
   </div>
 
   <div class="example-meta">
+    <p class="submission-info">
+      Submitted by {example.creator_profile?.full_name || 'Anonymous User'} on {submissionDate}
+    </p>
+
     {#if example.description}
       <p class="description">{example.description}</p>
     {/if}
-
-    <p class="submission-info">
-      Submitted on {submissionDate}
-    </p>
 
     {#if voteError}
       <p class="vote-error">{voteError}</p>
@@ -270,18 +270,9 @@
   }
 
   .example-meta {
-    flex: 1;
-    margin-top: 0;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-  }
-
-  .description {
-    font-style: italic;
-    color: var(--color-text-light);
-    margin: 0;
-    font-size: 0.9rem;
   }
 
   .submission-info {
