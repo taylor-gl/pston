@@ -24,6 +24,18 @@ To stop the local supabase:
 npx supabase stop
 ```
 
+## Resetting the local database (with seeded data)
+
+```bash
+npm run db:reset-local
+```
+
+### Making a user an admin
+
+```bash
+npm run make-admin-local test@gmail.com
+```
+
 ## Migrations
 
 Local:

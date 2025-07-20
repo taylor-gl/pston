@@ -18,7 +18,10 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "validate": "npm run type-check && npm run test:run",
-    "fix": "npm run format && npm run lint:fix"
+    "fix": "npm run format && npm run lint:fix",
+    "upload-seed-images": "node scripts/upload-seed-images.js",
+    "db:reset-local": "npx supabase db reset --local && npm run upload-seed-images",
+    "make-admin-local": "node scripts/make-admin.js"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.5",
@@ -54,6 +57,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.1",
+    "dotenv": "^17.2.0",
     "modern-normalize": "^3.0.1",
     "svelte-easy-crop": "^4.0.1"
   },

@@ -41,12 +41,8 @@
   <div>Loading...</div>
 {:else if user}
   <div>
-    <h1>Account</h1>
+    <h1>{user.user_metadata?.name || user.user_metadata?.full_name || 'User'}</h1>
 
-    <p>
-      <strong>Name:</strong>
-      {user.user_metadata?.name || user.user_metadata?.full_name || 'User'}
-    </p>
     <p><strong>Email:</strong> {user.email}</p>
     <p><strong>Joined:</strong> {formatDate(user.created_at)}</p>
   </div>
