@@ -58,3 +58,85 @@ export async function hasPermission(permissionName: string, userId?: string): Pr
 
   return data === true;
 }
+
+export async function banUser(
+  userId: string,
+  shouldBan: boolean = true
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const { data, error } = await supabase.rpc('ban_user_admin', {
+      target_user_id: userId,
+      should_ban: shouldBan,
+    });
+
+    if (error) {
+      console.error('Error banning user:', error);
+      return { success: false, message: error.message };
+    }
+
+    return { success: true, message: data.message };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to ban user';
+    console.error('Error banning user:', err);
+    return { success: false, message };
+  }
+}
+
+export async function getUserBanStatus(userId: string): Promise<{ banned: boolean } | null> {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('banned')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error getting user ban status:', error);
+      return null;
+    }
+
+    return { banned: data.banned || false };
+  } catch (err) {
+    console.error('Error getting user ban status:', err);
+    return null;
+  }
+}
+
+export async function checkCurrentUserBanStatus(): Promise<boolean> {
+  try {
+    // Check ban status directly - RLS policies enforce immediately
+    const { data, error } = await supabase.rpc('is_user_banned');
+
+    if (error) {
+      console.error('Error checking ban status:', error);
+      return false;
+    }
+
+    return data === true;
+  } catch (err) {
+    console.error('Error checking ban status:', err);
+    return false;
+  }
+}
+
+export async function checkAndHandleBanStatus(): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) return;
+
+  const isBanned = await checkCurrentUserBanStatus();
+
+  if (isBanned) {
+    console.log('User is banned - logging out');
+    await supabase.auth.signOut();
+
+    // Force clear all session data and redirect
+    if (typeof window !== 'undefined') {
+      // Clear any cached session data
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Force a full page refresh to the homepage with banned parameter
+      window.location.replace('/?banned=true');
+    }
+  }
+}

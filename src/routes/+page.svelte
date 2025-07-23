@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
+  import { browser } from '$app/environment';
   import type { PublicFigure } from '$lib/types';
   import type { User } from '@supabase/supabase-js';
   import { getAllPublicFigures } from '$lib/services/public-figures';
@@ -12,6 +14,9 @@
   let loading = $state(true);
   let error: string | null = $state(null);
   let user: User | null = $state(null);
+
+  // Check for banned user parameter
+  const isBannedUser = $derived(browser && $page.url.searchParams.has('banned'));
 
   onMount(() => {
     getCurrentUser().then((currentUser) => {
@@ -54,6 +59,10 @@
       <p>We collect real clips of public figures saying their own&nbsp;names.</p>
     </div>
   </div>
+
+  {#if isBannedUser}
+    <div class="error-message">Your account has been banned. You have been signed out.</div>
+  {/if}
 
   <div class="figures-section">
     <h2 class="section-header">Popular Public Figures</h2>

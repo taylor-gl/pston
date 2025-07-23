@@ -5,6 +5,7 @@
   import { getImageUrl, deletePublicFigure } from '$lib/services/public-figures';
   import { getPronunciationExamplesByFigureId } from '$lib/services/pronunciation-examples';
   import { getCurrentUser, hasPermission } from '$lib/services/auth';
+  import { getUserLinkInfo, type UserLinkInfo } from '$lib/services/profile';
   import DeleteButton from '$lib/components/DeleteButton.svelte';
   import { goto } from '$app/navigation';
   import PronunciationExampleItem from '$lib/components/PronunciationExampleItem.svelte';
@@ -25,6 +26,11 @@
   let canDeleteFigure = $state(false);
   let deleteInProgress = $state(false);
   let deleteError: string | null = $state(null);
+  let userLinkInfo: UserLinkInfo = $state({
+    isClickable: false,
+    href: '',
+    displayName: 'Anonymous User',
+  });
 
   onMount(() => {
     loadUserAndPermissions();
@@ -53,6 +59,8 @@
     if (user) {
       canDeleteFigure = await hasPermission('can_delete_public_figures');
     }
+    // Load user link info for clickable usernames
+    userLinkInfo = await getUserLinkInfo(publicFigure.creator_profile || null);
   }
 
   async function loadExamples() {
@@ -141,9 +149,13 @@
 
       <div class="figure-description">
         <p class="submission-info">
-          Submitted by {publicFigure.creator_profile?.full_name || 'Anonymous User'} on {new Date(
-            publicFigure.created_at
-          ).toLocaleDateString('en-US', {
+          Submitted by
+          {#if userLinkInfo.isClickable}
+            <a href={userLinkInfo.href} class="username-link">{userLinkInfo.displayName}</a>
+          {:else}
+            {userLinkInfo.displayName}
+          {/if}
+          on {new Date(publicFigure.created_at).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -296,6 +308,17 @@
     color: var(--color-text-light);
     font-size: 0.75rem;
     margin: 0;
+  }
+
+  .username-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .username-link:hover {
+    text-decoration: underline;
+    color: var(--color-primary-dark);
   }
 
   .section-header {

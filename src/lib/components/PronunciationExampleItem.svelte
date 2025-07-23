@@ -6,6 +6,7 @@
     deletePronunciationExample,
   } from '$lib/services/pronunciation-examples';
   import { getCurrentUser, hasPermission } from '$lib/services/auth';
+  import { getUserLinkInfo, type UserLinkInfo } from '$lib/services/profile';
   import YouTubePlayer from './YouTubePlayer.svelte';
   import DeleteButton from './DeleteButton.svelte';
   import Icon from '@iconify/svelte';
@@ -20,6 +21,11 @@
   let canDelete = $state(false);
   let deleteInProgress = $state(false);
   let deleteError: string | null = $state(null);
+  let userLinkInfo: UserLinkInfo = $state({
+    isClickable: false,
+    href: '',
+    displayName: example.creator_profile?.full_name || 'Anonymous User',
+  });
   let upvotes = $derived(example.upvotes);
   let downvotes = $derived(example.downvotes);
   let userVote = $derived(example.user_vote);
@@ -38,6 +44,8 @@
     if (user) {
       canDelete = await hasPermission('can_delete_pronunciation_examples');
     }
+    // Load user link info for clickable usernames
+    userLinkInfo = await getUserLinkInfo(example.creator_profile || null);
   });
 
   async function handleUpvote() {
@@ -175,7 +183,13 @@
 
   <div class="example-meta">
     <p class="submission-info">
-      Submitted by {example.creator_profile?.full_name || 'Anonymous User'} on {submissionDate}
+      Submitted by
+      {#if userLinkInfo.isClickable}
+        <a href={userLinkInfo.href} class="username-link">{userLinkInfo.displayName}</a>
+      {:else}
+        {userLinkInfo.displayName}
+      {/if}
+      on {submissionDate}
     </p>
 
     {#if example.description}
@@ -291,6 +305,17 @@
     color: var(--color-error);
     font-size: 0.75rem;
     margin: 0;
+  }
+
+  .username-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .username-link:hover {
+    text-decoration: underline;
+    color: var(--color-primary-dark);
   }
 
   /* Mobile responsive */
