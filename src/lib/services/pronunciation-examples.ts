@@ -77,9 +77,8 @@ export async function getPronunciationExamplesByFigureId(
         `
         *, 
         public_figure:public_figures(*),
-        creator_profile:profiles!created_by (
+        creator_profile:profiles!created_by_profile_id (
           id,
-          display_name,
           full_name,
           avatar_url,
           created_at,

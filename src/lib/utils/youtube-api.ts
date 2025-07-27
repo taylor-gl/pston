@@ -32,6 +32,7 @@ export interface PlayerConfig {
     modestbranding: number;
     autohide: number;
     autoplay: number;
+    origin?: string;
   };
   events: {
     onReady: () => void;
@@ -106,6 +107,7 @@ export function createPlayerConfig(
       modestbranding: 1,
       autohide: 1,
       autoplay: 0,
+      origin: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173',
     },
     events: {
       onReady,

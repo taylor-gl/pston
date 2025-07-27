@@ -7,17 +7,28 @@ export interface UserPermissions {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-  if (error) {
-    console.error('Error getting current user:', error);
+    if (error) {
+      // Don't log session missing errors as they're normal when not logged in
+      if (error.name !== 'AuthSessionMissingError') {
+        console.error('Error getting current user:', error);
+      }
+      return null;
+    }
+
+    return user;
+  } catch (error: any) {
+    // Handle any other unexpected errors
+    if (error?.name !== 'AuthSessionMissingError') {
+      console.error('Error getting current user:', error);
+    }
     return null;
   }
-
-  return user;
 }
 
 export async function getUserPermissions(userId?: string): Promise<UserPermissions | null> {
