@@ -21,6 +21,9 @@
     "fix": "npm run format && npm run lint:fix",
     "upload-seed-images": "node scripts/upload-seed-images.js",
     "db:reset-local": "npx supabase db reset --local && npm run upload-seed-images",
+    "db:reset-prod": "npx supabase db reset --linked --no-seed",
+    "db:backup-prod": "node scripts/backup-production.js",
+    "db:restore-prod": "node scripts/restore-production.js",
     "make-admin-local": "node scripts/make-admin.js"
   },
   "devDependencies": {
