@@ -4,7 +4,18 @@ export function getTimelinePosition(time: number, duration: number): number {
 }
 
 export function formatTime(seconds: number): string {
-  return seconds.toFixed(1) + 's';
+  const totalSeconds = Math.floor(seconds);
+  const milliseconds = Math.floor((seconds - totalSeconds) * 10);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds}`;
+  } else {
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${milliseconds}`;
+  }
 }
 
 export function calculateTimeFromPosition(

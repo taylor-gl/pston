@@ -1,7 +1,7 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
   import YoutubePlayerEmbed from './YoutubePlayerEmbed.svelte';
-  import { shouldStopPlayback } from '$lib/utils/timestamp-utils';
+  import { shouldStopPlayback, formatTime } from '$lib/utils/timestamp-utils';
 
   let {
     videoId,
@@ -75,9 +75,9 @@
     </button>
 
     <div class="timestamp-info">
-      <span>Start: {startTimestamp.toFixed(1)}s</span>
+      <span>Start: {formatTime(startTimestamp)}</span>
       {#if stopTimestamp !== null}
-        <span>Stop: {stopTimestamp.toFixed(1)}s</span>
+        <span>Stop: {formatTime(stopTimestamp)}</span>
       {/if}
     </div>
   </div>

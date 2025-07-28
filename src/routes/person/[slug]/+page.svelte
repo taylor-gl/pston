@@ -112,13 +112,13 @@
 </script>
 
 <svelte:head>
-  <title>{publicFigure.name} - People Saying Their Own Names</title>
+  <title>How to pronounce {publicFigure.name}'s name? - People Saying Their Own Names</title>
   <meta name="description" content={publicFigure.description} />
 </svelte:head>
 
 <div class="page-content">
   <div class="figure-header">
-    <h1>{publicFigure.name}</h1>
+    <h1>How to pronounce {publicFigure.name}'s name?</h1>
 
     {#if canDeleteFigure}
       <div class="admin-controls">
