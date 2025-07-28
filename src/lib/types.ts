@@ -1,9 +1,12 @@
 export interface PublicProfile {
   id: string;
   full_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
+  setup_completed?: boolean;
+  terms_accepted_at?: string | null;
 }
 
 export interface PublicFigure {

@@ -44,6 +44,7 @@ export async function getPronunciationExamplesByFigureId(
       creator_profile:profiles!created_by_profile_id (
         id,
         full_name,
+        username,
         avatar_url,
         created_at,
         updated_at

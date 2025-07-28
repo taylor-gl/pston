@@ -11,7 +11,7 @@ export interface UserLinkInfo {
  * Determines if a username should be clickable and what URL it should link to
  */
 export async function getUserLinkInfo(creatorProfile: PublicProfile | null): Promise<UserLinkInfo> {
-  const displayName = creatorProfile?.full_name || 'Anonymous User';
+  const displayName = creatorProfile?.username || 'Anonymous User';
 
   // Default to not clickable
   const result: UserLinkInfo = {
@@ -51,7 +51,7 @@ export async function getUserLinkInfo(creatorProfile: PublicProfile | null): Pro
  * Helper function to format display names consistently
  */
 export function formatDisplayName(profile: PublicProfile | null): string {
-  return profile?.full_name || 'Anonymous User';
+  return profile?.username || 'Anonymous User';
 }
 
 /**

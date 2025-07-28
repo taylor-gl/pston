@@ -1,15 +1,22 @@
 <script lang="ts">
   import type { User } from '@supabase/supabase-js';
+  import type { PublicProfile } from '$lib/types';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
 
   import { goto } from '$app/navigation';
-  import { getCurrentUser, hasPermission, banUser, getUserBanStatus } from '$lib/services/auth';
+  import {
+    getCurrentUserWithProfile,
+    hasPermission,
+    banUser,
+    getUserBanStatus,
+  } from '$lib/services/auth';
   import { supabase } from '$lib/supabase/client';
   import BanButton from '$lib/components/BanButton.svelte';
 
-  let user: User | null = $state(null);
+  let currentUser: User | null = $state(null);
   let targetUser: User | null = $state(null);
+  let userProfile: PublicProfile | null = $state(null);
   let loading = $state(true);
   let error: string | null = $state(null);
   let canBanUsers = $state(false);
@@ -17,31 +24,29 @@
   let banLoading = $state(false);
 
   onMount(async () => {
-    const currentUser = await getCurrentUser();
-    if (!currentUser) {
-      goto('/');
+    const userWithProfile = await getCurrentUserWithProfile();
+    if (!userWithProfile) {
+      goto('/auth'); // Redirect to auth if not logged in
       return;
     }
 
-    user = currentUser;
+    currentUser = userWithProfile.user;
     const userId = $page.params.userId;
 
-    // Check if user is viewing their own account
-    if (userId === currentUser.id) {
-      // Redirect to the main account page for their own account
+    // Redirect if user is trying to access their own account via this route
+    if (userId === userWithProfile.user.id) {
       goto('/account');
       return;
     }
 
-    // Check if user has permission to view other accounts
+    // Check if current user can view private profiles
     const canViewPrivateProfiles = await hasPermission('can_view_private_profiles');
     if (!canViewPrivateProfiles) {
-      error = 'You do not have permission to view other user accounts.';
-      loading = false;
+      goto('/'); // Redirect to home if no permission
       return;
     }
 
-    // Check if user can ban others
+    // Check if current user can ban users
     canBanUsers = await hasPermission('can_ban_users');
 
     // Fetch the target user's profile information
@@ -65,18 +70,8 @@
 
       // Create a user-like object from the profile data
       // Note: We can't access email or other private auth info from client-side
-      // This is a simplified version showing public profile info
-      targetUser = {
-        id: profileData.id,
-        user_metadata: {
-          full_name: profileData.full_name,
-          name: profileData.full_name,
-        },
-        email: 'Protected', // Can't access email from client-side
-        created_at: profileData.created_at,
-        app_metadata: {},
-        aud: 'authenticated',
-      } as unknown as User;
+      // Store profile data securely - only username for display
+      userProfile = profileData;
 
       loading = false;
     } catch (err) {
@@ -127,7 +122,7 @@
   <div>
     <div class="header-section">
       <h1>
-        {targetUser.user_metadata?.name || targetUser.user_metadata?.full_name || 'User'}
+        @{userProfile?.username || 'User'}
         {#if userBanned}
           <span class="banned-indicator">(Banned)</span>
         {/if}
@@ -140,8 +135,10 @@
       {/if}
     </div>
 
-    <p><strong>Email:</strong> {targetUser.email}</p>
-    <p><strong>Joined:</strong> {formatDate(targetUser.created_at || new Date().toISOString())}</p>
+    <p>
+      <strong>Joined:</strong>
+      {formatDate(userProfile?.created_at || new Date().toISOString())}
+    </p>
   </div>
 {/if}
 

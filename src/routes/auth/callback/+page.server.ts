@@ -23,11 +23,11 @@ export const load: PageServerLoad = async (event) => {
   if (code) {
     const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
-    // If session was created successfully, check if user is banned
+    // If session was created successfully, check user status
     if (data.session && data.session.user) {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('banned')
+        .select('banned, setup_completed')
         .eq('id', data.session.user.id)
         .single();
 
@@ -35,6 +35,11 @@ export const load: PageServerLoad = async (event) => {
       if (profile?.banned) {
         await supabase.auth.signOut();
         throw redirect(303, '/auth?banned');
+      }
+
+      // If user hasn't completed setup, redirect to setup page
+      if (!profile?.setup_completed) {
+        throw redirect(303, '/setup');
       }
     }
   }

@@ -189,3 +189,18 @@ WHERE created_by_profile_id IS NULL;
 UPDATE public.pronunciation_examples 
 SET created_by_profile_id = created_by 
 WHERE created_by_profile_id IS NULL;
+
+-- Set explicit usernames for seed users and mark them as setup complete
+UPDATE public.profiles 
+SET 
+  username = 'alice_johnson',
+  setup_completed = TRUE,
+  terms_accepted_at = now() - interval '7 days'
+WHERE full_name = 'Alice Johnson';
+
+UPDATE public.profiles 
+SET 
+  username = 'bob_admin',
+  setup_completed = TRUE,
+  terms_accepted_at = now() - interval '7 days'
+WHERE full_name = 'Bob Administrator';

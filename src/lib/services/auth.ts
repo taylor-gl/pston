@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js';
+import type { PublicProfile } from '$lib/types';
 import { supabase } from '$lib/supabase/client';
 
 export interface UserPermissions {
@@ -6,7 +7,17 @@ export interface UserPermissions {
   permissions: string[];
 }
 
+export interface UserWithProfile {
+  user: User;
+  profile: PublicProfile;
+}
+
 export async function getCurrentUser(): Promise<User | null> {
+  const userWithProfile = await getCurrentUserWithProfile();
+  return userWithProfile?.user || null;
+}
+
+export async function getCurrentUserWithProfile(): Promise<UserWithProfile | null> {
   try {
     const {
       data: { user },
@@ -21,7 +32,32 @@ export async function getCurrentUser(): Promise<User | null> {
       return null;
     }
 
-    return user;
+    if (!user) {
+      return null;
+    }
+
+    // Fetch the user's profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select(
+        'id, username, full_name, avatar_url, created_at, updated_at, setup_completed, terms_accepted_at'
+      )
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Error getting user profile:', profileError);
+      return null;
+    }
+
+    if (!profile) {
+      return null;
+    }
+
+    return {
+      user,
+      profile,
+    };
   } catch (error: any) {
     // Handle any other unexpected errors
     if (error?.name !== 'AuthSessionMissingError') {

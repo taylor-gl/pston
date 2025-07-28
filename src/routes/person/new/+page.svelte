@@ -78,7 +78,10 @@
       <div class="form-group">
         <label for="name">Name</label>
         <input type="text" id="name" bind:value={name} placeholder="e.g., Jamie Foxx" required />
-        <div class="help-text">The person's full name</div>
+        <div class="help-text">
+          The full name the person is most known by. For example, Donald Trump, not Donald J. Trump
+          or Donald John Trump.
+        </div>
       </div>
 
       <div class="form-group">
@@ -91,7 +94,7 @@
           required
         />
         <div class="help-text">
-          Very brief description of who they are (e.g., "comedian and podcaster")
+          Very brief description of who they are (e.g., "Comedian and podcaster")
         </div>
       </div>
 
@@ -103,6 +106,7 @@
           bind:error
           onFileChange={() => (imageFile = null)}
         />
+        <div class="help-text">A photo of the person. The photo must be in the public domain.</div>
       </div>
 
       {#if error}

@@ -206,6 +206,10 @@
                 placeholder="e.g., Jamie Foxx"
                 required
               />
+              <div class="help-text">
+                The full name the person is most known by. For example, Donald Trump, not Donald J.
+                Trump or Donald John Trump.
+              </div>
             </div>
 
             <div class="form-group">
@@ -217,6 +221,9 @@
                 placeholder="e.g., comedian and actor"
                 required
               />
+              <div class="help-text">
+                Very brief description of who they are (e.g., "Comedian and podcaster")
+              </div>
             </div>
 
             <div class="form-group">
@@ -227,6 +234,9 @@
                 bind:error
                 onFileChange={() => (newFigureImageFile = null)}
               />
+              <div class="help-text">
+                A photo of the person. The photo must be in the public domain.
+              </div>
             </div>
           </div>
         {/if}
@@ -261,7 +271,10 @@
             bind:value={exampleDescription}
             placeholder="e.g., from interview with Jimmy Fallon"
           />
-          <p class="help-text">Add context about where this pronunciation clip is from</p>
+          <p class="help-text">
+            Leave this blank or add notes about the quality, e.g. "Other people talking in the
+            background"
+          </p>
         </div>
       </fieldset>
 

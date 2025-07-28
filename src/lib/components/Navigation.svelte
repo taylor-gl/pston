@@ -1,29 +1,21 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
   import type { User } from '@supabase/supabase-js';
+  import type { PublicProfile } from '$lib/types';
   import { onMount } from 'svelte';
 
   import { supabase } from '$lib/supabase/client';
-  import { getCurrentUser } from '$lib/services/auth';
+  import { getCurrentUserWithProfile } from '$lib/services/auth';
   import SearchBar from './SearchBar.svelte';
 
   let user: User | null = $state(null);
+  let profile: PublicProfile | null = $state(null);
   let showMobileMenu = $state(false);
 
   async function signOut() {
     await supabase.auth.signOut();
     user = null;
     location.reload();
-  }
-
-  function getUserDisplayName(user: User | null): string {
-    if (!user) return '';
-    return (
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.email?.split('@')[0] ||
-      'User'
-    );
   }
 
   function toggleMobileMenu() {
@@ -38,8 +30,11 @@
   }
 
   onMount(() => {
-    getCurrentUser().then((currentUser) => {
-      user = currentUser;
+    getCurrentUserWithProfile().then((userWithProfile) => {
+      if (userWithProfile) {
+        user = userWithProfile.user;
+        profile = userWithProfile.profile;
+      }
     });
 
     document.addEventListener('click', handleClickOutside);
@@ -62,9 +57,11 @@
 
       <div class="nav-actions desktop-only">
         {#if user}
-          <a href="/account">
-            {getUserDisplayName(user)}
-          </a>
+          {#if profile && profile.username}
+            <a href="/account">
+              @{profile.username}
+            </a>
+          {/if}
           <button onclick={signOut} class="link-button">Sign out</button>
         {:else}
           <a href="/auth">Sign in</a>
@@ -79,9 +76,11 @@
         {#if showMobileMenu}
           <div class="mobile-menu">
             {#if user}
-              <a href="/account" onclick={() => (showMobileMenu = false)}>
-                {getUserDisplayName(user)}
-              </a>
+              {#if profile && profile.username}
+                <a href="/account" onclick={() => (showMobileMenu = false)}>
+                  @{profile.username}
+                </a>
+              {/if}
               <button onclick={signOut} class="link-button">Sign out</button>
             {:else}
               <a href="/auth" onclick={() => (showMobileMenu = false)}>Sign in</a>

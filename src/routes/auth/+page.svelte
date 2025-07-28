@@ -60,30 +60,50 @@
   />
 </svelte:head>
 
-<div class="auth-container">
-  <h1>Welcome!</h1>
-  <p>Please sign in to continue:</p>
+<div class="page-content">
+  <div class="form-container">
+    <h2 class="section-header">Welcome!</h2>
+    <p>Please sign in to continue:</p>
 
-  {#if errorMessage}
-    <div class="error-message">{errorMessage}</div>
-  {/if}
-
-  <button onclick={signInWithGoogle} class="btn-secondary btn-icon" disabled={isLoading}>
-    {#if isLoading}
-      <Icon icon="svg-spinners:90-ring-with-bg" />
-    {:else}
-      <Icon icon="devicon:google" />
+    {#if errorMessage}
+      <div class="error-message">{errorMessage}</div>
     {/if}
-    Sign in with Google
-  </button>
+
+    <div class="form-actions">
+      <button onclick={signInWithGoogle} class="btn-secondary btn-icon" disabled={isLoading}>
+        {#if isLoading}
+          <Icon icon="svg-spinners:90-ring-with-bg" />
+        {:else}
+          <Icon icon="devicon:google" />
+        {/if}
+        Sign in with Google
+      </button>
+    </div>
+  </div>
 </div>
 
 <style>
-  .auth-container {
-    padding: 2rem 0;
+  .page-content {
+    max-width: 72rem;
+    margin: 0 auto;
   }
 
-  .auth-container button {
-    margin-bottom: 2rem;
+  .section-header {
+    padding-top: 1rem;
+  }
+
+  .form-container {
+    max-width: 40rem;
+  }
+
+  h2 {
+    border-bottom: 1px solid var(--color-borders);
+    padding-bottom: 0.25rem;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 </style>
