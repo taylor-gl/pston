@@ -2,11 +2,15 @@
   import { goto } from '$app/navigation';
   import { createPublicFigure } from '$lib/services/public-figures';
   import type { NewPublicFigure } from '$lib/types';
-  import type { User } from '@supabase/supabase-js';
+  import type { ServerUserContext } from '$lib/services/server-auth';
   import { cropAndScaleImage, type CropPixels } from '$lib/utils/image';
   import ImageCropper from '$lib/components/ImageCropper.svelte';
 
-  let user: User | null = null;
+  interface PageData {
+    userContext: ServerUserContext;
+  }
+
+  let { data }: { data: PageData } = $props();
   let name = $state('');
   let description = $state('');
   let imageFile: File | null = $state(null);

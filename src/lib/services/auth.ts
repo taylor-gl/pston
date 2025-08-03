@@ -173,7 +173,6 @@ export async function checkAndHandleBanStatus(): Promise<void> {
   const isBanned = await checkCurrentUserBanStatus();
 
   if (isBanned) {
-    console.log('User is banned - logging out');
     await supabase.auth.signOut();
 
     // Force clear all session data and redirect

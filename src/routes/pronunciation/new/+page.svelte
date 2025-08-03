@@ -1,15 +1,12 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
   import type { PublicFigure, NewPublicFigure, NewPronunciationExample } from '$lib/types';
-  import type { User } from '@supabase/supabase-js';
-  import { createPublicFigure, getPublicFigureBySlug } from '$lib/services/public-figures';
+  import type { ServerUserContext } from '$lib/services/server-auth';
+  import { createPublicFigure } from '$lib/services/public-figures';
   import {
     createPronunciationExample,
     extractYouTubeVideoId,
   } from '$lib/services/pronunciation-examples';
-  import { getCurrentUser } from '$lib/services/auth';
   import { cropAndScaleImage, type CropPixels } from '$lib/utils/image';
   import {
     validateNewFigure,
@@ -21,12 +18,18 @@
   import ImageCropper from '$lib/components/ImageCropper.svelte';
   import TimestampPicker from '$lib/components/TimestampPicker.svelte';
 
-  let user: User | null = $state(null);
+  interface PageData {
+    userContext: ServerUserContext;
+    selectedFigure: PublicFigure | null;
+    allFigures: PublicFigure[];
+  }
+
+  let { data }: { data: PageData } = $props();
   let loading = $state(false);
   let error: string | null = $state(null);
 
-  let selectedFigure: PublicFigure | null = $state(null);
-  let figureMode: 'existing' | 'new' = $state('existing');
+  let selectedFigure: PublicFigure | null = $state(data.selectedFigure);
+  let figureMode: 'existing' | 'new' = $state(data.selectedFigure ? 'existing' : 'existing');
 
   let newFigureName = $state('');
   let newFigureDescription = $state('');
@@ -39,26 +42,6 @@
   let exampleDescription = $state('');
 
   let videoId = $derived(youtubeUrl ? extractYouTubeVideoId(youtubeUrl) : null);
-
-  onMount(async () => {
-    try {
-      user = await getCurrentUser();
-      if (!user) {
-        goto('/auth?redirect=' + encodeURIComponent($page.url.pathname + $page.url.search));
-        return;
-      }
-      const figureSlug = $page.url.searchParams.get('figure');
-      if (figureSlug) {
-        const figure = await getPublicFigureBySlug(figureSlug);
-        if (figure) {
-          selectedFigure = figure;
-          figureMode = 'existing';
-        }
-      }
-    } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load data';
-    }
-  });
 
   function handleImageChange(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -75,7 +58,7 @@
     loading = true;
 
     try {
-      if (!user) {
+      if (!data.userContext.profile) {
         error = 'You must be signed in to submit pronunciation examples';
         return;
       }

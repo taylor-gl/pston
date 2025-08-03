@@ -1,84 +1,22 @@
 <script lang="ts">
-  import type { User } from '@supabase/supabase-js';
   import type { PublicProfile } from '$lib/types';
-  import { onMount } from 'svelte';
-  import { page } from '$app/stores';
-
-  import { goto } from '$app/navigation';
-  import {
-    getCurrentUserWithProfile,
-    hasPermission,
-    banUser,
-    getUserBanStatus,
-  } from '$lib/services/auth';
-  import { supabase } from '$lib/supabase/client';
+  import type { ServerUserContext } from '$lib/services/server-auth';
+  import { banUser } from '$lib/services/auth';
   import BanButton from '$lib/components/BanButton.svelte';
 
-  let currentUser: User | null = $state(null);
-  let targetUser: User | null = $state(null);
-  let userProfile: PublicProfile | null = $state(null);
-  let loading = $state(true);
-  let error: string | null = $state(null);
-  let canBanUsers = $state(false);
-  let userBanned = $state(false);
+  interface PageData {
+    userContext: ServerUserContext;
+    targetProfile: PublicProfile;
+    userBanned: boolean;
+  }
+
+  let { data }: { data: PageData } = $props();
+
+  // Computed value that needs $derived
+  let canBanUsers = $derived(data.userContext.permissions.includes('can_ban_users'));
+
+  let userBanned = $state(data.userBanned);
   let banLoading = $state(false);
-
-  onMount(async () => {
-    const userWithProfile = await getCurrentUserWithProfile();
-    if (!userWithProfile) {
-      goto('/auth'); // Redirect to auth if not logged in
-      return;
-    }
-
-    currentUser = userWithProfile.user;
-    const userId = $page.params.userId;
-
-    // Redirect if user is trying to access their own account via this route
-    if (userId === userWithProfile.user.id) {
-      goto('/account');
-      return;
-    }
-
-    // Check if current user can view private profiles
-    const canViewPrivateProfiles = await hasPermission('can_view_private_profiles');
-    if (!canViewPrivateProfiles) {
-      goto('/'); // Redirect to home if no permission
-      return;
-    }
-
-    // Check if current user can ban users
-    canBanUsers = await hasPermission('can_ban_users');
-
-    // Fetch the target user's profile information
-    try {
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (profileError) throw profileError;
-
-      if (!profileData) {
-        error = 'User not found';
-        loading = false;
-        return;
-      }
-
-      // Get ban status from profiles table
-      userBanned = profileData.banned || false;
-
-      // Create a user-like object from the profile data
-      // Note: We can't access email or other private auth info from client-side
-      // Store profile data securely - only username for display
-      userProfile = profileData;
-
-      loading = false;
-    } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load user account';
-      loading = false;
-    }
-  });
 
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -89,12 +27,12 @@
   }
 
   async function handleBanToggle() {
-    if (!targetUser || banLoading) return;
+    if (!data.targetProfile || banLoading) return;
 
     banLoading = true;
     const shouldBan = !userBanned;
 
-    const result = await banUser(targetUser.id, shouldBan);
+    const result = await banUser(data.targetProfile.id, shouldBan);
 
     if (result.success) {
       userBanned = shouldBan;
@@ -114,15 +52,11 @@
   />
 </svelte:head>
 
-{#if loading}
-  <div>Loading...</div>
-{:else if error}
-  <div class="error-message">{error}</div>
-{:else if targetUser}
+<div>
   <div>
     <div class="header-section">
       <h1>
-        @{userProfile?.username || 'User'}
+        @{data.targetProfile?.username || 'User'}
         {#if userBanned}
           <span class="banned-indicator">(Banned)</span>
         {/if}
@@ -137,21 +71,12 @@
 
     <p>
       <strong>Joined:</strong>
-      {formatDate(userProfile?.created_at || new Date().toISOString())}
+      {formatDate(data.targetProfile?.created_at || new Date().toISOString())}
     </p>
   </div>
-{/if}
+</div>
 
 <style>
-  .error-message {
-    color: var(--color-error);
-    padding: 1rem;
-    background: var(--color-bg-light);
-    border: 1px solid var(--color-error);
-    border-radius: 4px;
-    margin-bottom: 1rem;
-  }
-
   .header-section {
     display: flex;
     align-items: center;

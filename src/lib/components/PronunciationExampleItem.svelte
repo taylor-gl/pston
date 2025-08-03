@@ -1,31 +1,30 @@
 <script lang="ts">
   import type { PronunciationExample } from '$lib/types';
+  import type { ServerUserContext } from '$lib/services/server-auth';
+  import type { ServerUserLinkInfo } from '$lib/services/server-profile';
   import {
     votePronunciationExample,
     removePronunciationExampleVote,
     deletePronunciationExample,
   } from '$lib/services/pronunciation-examples';
-  import { getCurrentUser, hasPermission } from '$lib/services/auth';
-  import { getUserLinkInfo, type UserLinkInfo } from '$lib/services/profile';
   import YouTubePlayer from './YouTubePlayer.svelte';
   import DeleteButton from './DeleteButton.svelte';
   import Icon from '@iconify/svelte';
-  import { onMount } from 'svelte';
-  import type { User } from '@supabase/supabase-js';
 
-  let { example }: { example: PronunciationExample } = $props();
+  interface Props {
+    example: PronunciationExample;
+    userContext: ServerUserContext | null;
+    creatorLinkInfo: ServerUserLinkInfo;
+  }
 
-  let user: User | null = $state(null);
+  let { example, userContext, creatorLinkInfo }: Props = $props();
+
+  let user = $derived(userContext?.profile || null);
+  let canDelete = $derived(userContext?.canDeleteExamples || false);
   let votingInProgress = $state(false);
   let voteError: string | null = $state(null);
-  let canDelete = $state(false);
   let deleteInProgress = $state(false);
   let deleteError: string | null = $state(null);
-  let userLinkInfo: UserLinkInfo = $state({
-    isClickable: false,
-    href: '',
-    displayName: example.creator_profile?.full_name || 'Anonymous User',
-  });
   let upvotes = $derived(example.upvotes);
   let downvotes = $derived(example.downvotes);
   let userVote = $derived(example.user_vote);
@@ -38,15 +37,6 @@
       day: 'numeric',
     })
   );
-
-  onMount(async () => {
-    user = await getCurrentUser();
-    if (user) {
-      canDelete = await hasPermission('can_delete_pronunciation_examples');
-    }
-    // Load user link info for clickable usernames
-    userLinkInfo = await getUserLinkInfo(example.creator_profile || null);
-  });
 
   async function handleUpvote() {
     if (!user || votingInProgress) return;
@@ -184,10 +174,10 @@
   <div class="example-meta">
     <p class="submission-info">
       Submitted by
-      {#if userLinkInfo.isClickable}
-        <a href={userLinkInfo.href} class="username-link">{userLinkInfo.displayName}</a>
+      {#if creatorLinkInfo.isClickable}
+        <a href={creatorLinkInfo.href} class="username-link">{creatorLinkInfo.displayName}</a>
       {:else}
-        {userLinkInfo.displayName}
+        {creatorLinkInfo.displayName}
       {/if}
       on {submissionDate}
     </p>

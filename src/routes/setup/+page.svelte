@@ -1,44 +1,23 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
   import { supabase } from '$lib/supabase/client';
-  import { getCurrentUser } from '$lib/services/auth';
+  import type { ServerUserContext } from '$lib/services/server-auth';
   import Icon from '@iconify/svelte';
 
-  let username = $state('');
+  interface PageData {
+    userContext: ServerUserContext;
+    existingUsername: string;
+  }
+
+  let { data }: { data: PageData } = $props();
+
+  let username = $state(data.existingUsername);
   let termsAccepted = $state(false);
   let privacyAccepted = $state(false);
   let isLoading = $state(false);
   let errorMessage = $state('');
   let usernameAvailable = $state<boolean | null>(null);
   let checkingUsername = $state(false);
-
-  // Check if user should be on this page
-  onMount(async () => {
-    const user = await getCurrentUser();
-    if (!user) {
-      goto('/auth');
-      return;
-    }
-
-    // Check if user has already completed setup
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('setup_completed, username')
-      .eq('id', user.id)
-      .single();
-
-    if (profile?.setup_completed) {
-      goto('/');
-      return;
-    }
-
-    // Pre-fill username if one was auto-generated
-    if (profile?.username) {
-      username = profile.username;
-      checkUsernameAvailability();
-    }
-  });
 
   // Debounced username availability check
   let usernameCheckTimeout: ReturnType<typeof setTimeout>;

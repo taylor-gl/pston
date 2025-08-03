@@ -28,3 +28,4 @@ supabase/.env.local
 
 # Generated images
 static/images
+.aider*

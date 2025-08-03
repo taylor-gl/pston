@@ -1,20 +1,20 @@
 <script lang="ts">
   import Icon from '@iconify/svelte';
-  import type { User } from '@supabase/supabase-js';
-  import type { PublicProfile } from '$lib/types';
-  import { onMount } from 'svelte';
-
+  import type { ServerUserContext } from '$lib/services/server-auth';
   import { supabase } from '$lib/supabase/client';
-  import { getCurrentUserWithProfile } from '$lib/services/auth';
   import SearchBar from './SearchBar.svelte';
 
-  let user: User | null = $state(null);
-  let profile: PublicProfile | null = $state(null);
+  interface Props {
+    userContext: ServerUserContext | null;
+  }
+
+  let { userContext }: Props = $props();
+
+  let user = $derived(userContext?.profile || null);
   let showMobileMenu = $state(false);
 
   async function signOut() {
     await supabase.auth.signOut();
-    user = null;
     location.reload();
   }
 
@@ -29,19 +29,10 @@
     }
   }
 
-  onMount(() => {
-    getCurrentUserWithProfile().then((userWithProfile) => {
-      if (userWithProfile) {
-        user = userWithProfile.user;
-        profile = userWithProfile.profile;
-      }
-    });
-
+  // Set up click outside handler
+  if (typeof document !== 'undefined') {
     document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  });
+  }
 </script>
 
 <nav>
@@ -57,9 +48,9 @@
 
       <div class="nav-actions desktop-only">
         {#if user}
-          {#if profile && profile.username}
+          {#if user.username}
             <a href="/account">
-              @{profile.username}
+              @{user.username}
             </a>
           {/if}
           <button onclick={signOut} class="link-button">Sign out</button>
@@ -76,9 +67,9 @@
         {#if showMobileMenu}
           <div class="mobile-menu">
             {#if user}
-              {#if profile && profile.username}
+              {#if user.username}
                 <a href="/account" onclick={() => (showMobileMenu = false)}>
-                  @{profile.username}
+                  @{user.username}
                 </a>
               {/if}
               <button onclick={signOut} class="link-button">Sign out</button>

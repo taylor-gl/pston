@@ -1,39 +1,21 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { browser } from '$app/environment';
   import type { PublicFigure } from '$lib/types';
-  import type { User } from '@supabase/supabase-js';
-  import { getAllPublicFigures } from '$lib/services/public-figures';
-  import { getCurrentUser } from '$lib/services/auth';
+  import type { ServerUserContext } from '$lib/services/server-auth';
   import ResponsiveImage from '$lib/components/ResponsiveImage.svelte';
   import PublicFigureListItem from '$lib/components/PublicFigureListItem.svelte';
   import YouTubePlayer from '$lib/components/YouTubePlayer.svelte';
 
-  let publicFigures: PublicFigure[] = $state([]);
-  let loading = $state(true);
-  let error: string | null = $state(null);
-  let user: User | null = $state(null);
+  interface PageData {
+    userContext: ServerUserContext | null;
+    publicFigures: PublicFigure[];
+  }
 
-  // Check for banned user parameter
+  let { data }: { data: PageData } = $props();
+
+  // Computed value that needs $derived
   const isBannedUser = $derived(browser && $page.url.searchParams.has('banned'));
-
-  onMount(() => {
-    getCurrentUser().then((currentUser) => {
-      user = currentUser;
-    });
-
-    getAllPublicFigures()
-      .then((figures) => {
-        publicFigures = figures;
-      })
-      .catch((err) => {
-        error = err instanceof Error ? err.message : 'Failed to load public figures';
-      })
-      .finally(() => {
-        loading = false;
-      });
-  });
 </script>
 
 <svelte:head>
@@ -67,14 +49,10 @@
   <div class="figures-section">
     <h2 class="section-header">Popular Public Figures</h2>
 
-    {#if loading}
-      <p>Loading...</p>
-    {:else if error}
-      <p class="error-message">Error: {error}</p>
-    {:else if publicFigures.length === 0}
+    {#if data.publicFigures.length === 0}
       <p class="add-figure-container">
         No public figures yet.
-        {#if user}
+        {#if data.userContext?.profile}
           <a href="/person/new">Add the first one!</a>
         {:else}
           <a href="/auth">Sign in to add the first one!</a>
@@ -82,14 +60,14 @@
       </p>
     {:else}
       <p class="add-figure-container">
-        {#if user}
+        {#if data.userContext?.profile}
           <a href="/pronunciation/new" class="create-link">Add a new pronunciation example</a>
         {:else}
           <a href="/auth" class="create-link">Sign in to add a new pronunciation example</a>
         {/if}
       </p>
       <ul class="figures-list">
-        {#each publicFigures as figure (figure.id)}
+        {#each data.publicFigures as figure (figure.id)}
           <PublicFigureListItem {figure} />
         {/each}
       </ul>
