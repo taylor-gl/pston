@@ -28,7 +28,6 @@
   let totalExamples = $state(data.totalExamples);
   let hiddenCount = $state(data.hiddenCount);
 
-  // UI state
   let currentPage = $state(1);
   let loadingExamples = $state(false);
   let examplesError: string | null = $state(null);
@@ -36,12 +35,10 @@
   let deleteInProgress = $state(false);
   let deleteError: string | null = $state(null);
 
-  // Computed values that need $derived
   let user = $derived(data.userContext?.profile || null);
   let canDeleteFigure = $derived(data.userContext?.canDeleteFigure || false);
   let canDeleteExamples = $derived(data.userContext?.canDeleteExamples || false);
 
-  // Handle example deletion events
   const handleExampleDeleted = (event: Event) => {
     const customEvent = event as CustomEvent;
     const deletedId = customEvent.detail.exampleId;
@@ -53,7 +50,6 @@
     }
   };
 
-  // Set up event listener on component mount
   if (typeof document !== 'undefined') {
     document.addEventListener('example-deleted', handleExampleDeleted);
   }
@@ -83,7 +79,6 @@
       deleteError = null;
       await deletePublicFigure(data.publicFigure.id);
 
-      // Navigate back to the home page or figures list
       goto('/');
     } catch (err) {
       deleteError = err instanceof Error ? err.message : 'Failed to delete public figure';
@@ -126,6 +121,9 @@
             alt={data.publicFigure.name}
             loading="lazy"
           />
+          {#if data.publicFigure.photo_attribution}
+            <div class="photo-attribution">{data.publicFigure.photo_attribution}</div>
+          {/if}
         </div>
       {/if}
 
@@ -145,7 +143,7 @@
             day: 'numeric',
           })}
         </p>
-        <p><strong>{data.publicFigure.name}</strong> is a {data.publicFigure.description}.</p>
+        <p>{data.publicFigure.description}</p>
       </div>
     </div>
   </article>
@@ -293,6 +291,14 @@
     border-radius: 50%;
     object-fit: cover;
     aspect-ratio: 1;
+  }
+
+  .photo-attribution {
+    font-size: 0.625rem;
+    color: #999;
+    text-align: center;
+    margin-top: 0.25rem;
+    font-style: italic;
   }
 
   .figure-description {

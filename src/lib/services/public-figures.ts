@@ -102,6 +102,7 @@ export async function createPublicFigure(figure: NewPublicFigure): Promise<Publi
         slug,
         description: figure.description,
         image_filename,
+        photo_attribution: figure.photo_attribution || null,
       },
     ])
     .select()

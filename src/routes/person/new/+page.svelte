@@ -14,6 +14,7 @@
   let name = $state('');
   let description = $state('');
   let imageFile: File | null = $state(null);
+  let photoAttribution = $state('');
   let loading = $state(false);
   let error: string | null = $state(null);
   let croppedAreaPixels: CropPixels | null = $state(null);
@@ -50,6 +51,10 @@
         description: description.trim(),
         image: processedImageFile,
       };
+
+      if (photoAttribution.trim()) {
+        newFigure.photo_attribution = photoAttribution.trim();
+      }
 
       const createdFigure = await createPublicFigure(newFigure);
       await goto(`/person/${createdFigure.slug}`);
@@ -111,6 +116,19 @@
           onFileChange={() => (imageFile = null)}
         />
         <div class="help-text">A photo of the person. The photo must be in the public domain.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="photo-attribution">Photo Attribution</label>
+        <input
+          type="text"
+          id="photo-attribution"
+          bind:value={photoAttribution}
+          placeholder="e.g., Photo by John Doe / CC BY-SA 4.0"
+        />
+        <div class="help-text">
+          Attribution for the image (if necessary - otherwise leave blank)
+        </div>
       </div>
 
       {#if error}

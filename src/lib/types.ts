@@ -15,6 +15,7 @@ export interface PublicFigure {
   slug: string;
   description: string;
   image_filename: string | null;
+  photo_attribution: string | null;
   created_at: string;
   updated_at: string;
   created_by: string | null;
@@ -25,6 +26,7 @@ export interface NewPublicFigure {
   name: string;
   description: string;
   image: File;
+  photo_attribution?: string;
 }
 
 export interface PronunciationExample {

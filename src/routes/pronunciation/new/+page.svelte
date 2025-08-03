@@ -34,6 +34,7 @@
   let newFigureName = $state('');
   let newFigureDescription = $state('');
   let newFigureImageFile: File | null = $state(null);
+  let newFigurePhotoAttribution = $state('');
   let croppedAreaPixels: CropPixels | null = $state(null);
 
   let youtubeUrl = $state('');
@@ -91,6 +92,10 @@
           description: newFigureDescription.trim(),
           image: processedImageFile,
         };
+
+        if (newFigurePhotoAttribution.trim()) {
+          newFigure.photo_attribution = newFigurePhotoAttribution.trim();
+        }
 
         figureToUse = await createPublicFigure(newFigure);
       }
@@ -219,6 +224,19 @@
               />
               <div class="help-text">
                 A photo of the person. The photo must be in the public domain.
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="new-photo-attribution">Photo Attribution</label>
+              <input
+                type="text"
+                id="new-photo-attribution"
+                bind:value={newFigurePhotoAttribution}
+                placeholder="e.g., Photo by John Doe / CC BY-SA 4.0"
+              />
+              <div class="help-text">
+                Attribution for the image (if necessary - otherwise leave blank)
               </div>
             </div>
           </div>
