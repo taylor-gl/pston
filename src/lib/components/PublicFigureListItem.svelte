@@ -42,12 +42,12 @@
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
   }
 
   .figure-item.small {
     gap: 0.75rem;
-    padding: 0.4rem 0;
+    padding: 0.5rem 0;
   }
 
   .figure-thumbnail {
@@ -87,9 +87,9 @@
   .figure-description {
     color: var(--color-text);
     opacity: 0.7;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    margin-top: 0.1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-top: 0.25rem;
   }
 
   .figure-item.small .figure-description {

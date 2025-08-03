@@ -255,8 +255,7 @@
 
   .figure-article {
     max-width: 50rem;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
 
   .figure-header h1 {
@@ -304,6 +303,9 @@
 
   .pronunciation-section {
     border-top: 1px solid var(--color-borders);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
   }
 
   .submission-info {
@@ -323,8 +325,15 @@
     color: var(--color-primary-dark);
   }
 
+  .examples-list {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0.75rem 0;
+  }
+
   .section-header {
-    padding: 1rem 0;
+    padding: 0;
+    text-align: center;
   }
 
   .no-examples {

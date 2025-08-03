@@ -307,31 +307,32 @@
 
 <style>
   .timestamp-picker {
-    background: var(--color-bg-light);
-    border: 1px solid var(--color-borders);
-    border-radius: 4px;
-    padding: 1rem;
+    background: var(--color-bg-light, #f8f9fa);
+    padding: 0.75rem;
+    border-radius: 8px;
   }
 
   .guidelines {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .guidelines p {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--color-borders);
+    color: var(--color-text-light);
+    font-size: 0.875rem;
+    line-height: 1.4;
   }
 
   .timestamp-controls {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 
   .timestamp-selector {
     display: flex;
     gap: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     justify-content: center;
   }
 
@@ -348,41 +349,43 @@
   }
 
   .timestamp-value {
-    font-size: 0.85rem;
-    color: var(--color-borders);
+    font-size: 0.8rem;
+    color: var(--color-text-light);
+    font-weight: 500;
   }
 
   .set-current {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     margin-top: 0.25rem;
+    color: var(--color-primary);
   }
 
   .timeline-container {
-    margin: 1rem 0;
+    margin: 0.75rem 0;
   }
 
   .timeline {
     position: relative;
-    height: 8px;
+    height: 6px;
     background: var(--color-borders);
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
-    margin: 2rem 0;
+    margin: 1.5rem 0;
   }
 
   .timeline-progress {
     height: 100%;
-    background: var(--color-accent);
-    border-radius: 4px;
+    background: var(--color-primary);
+    border-radius: 3px;
     transition: width 0.1s ease;
   }
 
   .current-time-indicator {
     position: absolute;
-    top: -4px;
+    top: -3px;
     width: 2px;
-    height: 16px;
-    background: var(--color-accent);
+    height: 12px;
+    background: var(--color-primary);
     transform: translateX(-50%);
     border-radius: 1px;
   }
@@ -396,13 +399,13 @@
   }
 
   .timestamp-marker.active {
-    color: var(--color-accent);
+    color: #3b82f6;
     z-index: 2;
-    transform: translateX(-50%) scale(1.2);
+    transform: translateX(-50%) scale(1.5);
   }
 
   .timestamp-marker:not(.active) {
-    color: var(--color-borders);
+    color: var(--color-text-light);
     z-index: 1;
   }
 
@@ -411,7 +414,7 @@
   }
 
   .timestamp-marker.active:hover {
-    transform: translateX(-50%) scale(1.3);
+    transform: translateX(-50%) scale(1.6);
   }
 
   .timestamp-marker:active {
@@ -422,12 +425,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .nudge-controls {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.25rem;
     align-items: center;
   }
 
@@ -435,6 +438,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    padding: 0.375rem;
   }
 
   @media (max-width: 768px) {

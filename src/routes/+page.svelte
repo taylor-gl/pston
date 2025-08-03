@@ -77,7 +77,7 @@
 
 <style>
   .add-figure-container {
-    padding: 1rem 0;
+    padding: 0;
     margin: 0;
   }
 
@@ -125,12 +125,13 @@
   }
 
   .figures-section {
-    margin: 1rem 0;
+    margin: 2rem 0;
   }
 
   .figures-section h2 {
     border-bottom: 1px solid var(--color-borders);
-    padding-bottom: 0.25rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
   }
 
   .figures-list {

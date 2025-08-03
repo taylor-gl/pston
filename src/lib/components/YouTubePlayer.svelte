@@ -85,10 +85,8 @@
 
 <style>
   .youtube-player {
-    background: var(--color-bg-light);
-    border: 1px solid var(--color-borders);
-    border-radius: 4px;
-    padding: 1rem;
+    background: var(--color-bg-light, #f8f9fa);
+    padding: 0.75rem;
   }
 
   .controls {
@@ -96,7 +94,8 @@
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
+    padding: 0;
   }
 
   .timestamp-info {
@@ -104,7 +103,7 @@
     flex-direction: column;
     gap: 0.25rem;
     font-size: 0.8rem;
-    color: var(--color-borders);
+    color: var(--color-text-light);
   }
 
   @media (max-width: 768px) {
